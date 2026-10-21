@@ -1,0 +1,338 @@
+{
+  "generated_at_utc": "2026-10-21T11:12:39.257862+00:00",
+  "random_seed": 42,
+  "status": "passed",
+  "recordings": 8498,
+  "model_eligible_recordings": 8491,
+  "excluded_recordings": [
+    {
+      "audio_path": "dataset/Actor_07/03-01-03-01-02-02-07.wav",
+      "emotion": "happy",
+      "reason": "redundant_exact_audio_duplicate"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1006/1006_TIE_HAP_XX.wav",
+      "emotion": "happy",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1006/1006_TIE_NEU_XX.wav",
+      "emotion": "neutral",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1013/1013_WSI_DIS_XX.wav",
+      "emotion": "disgust",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1013/1013_WSI_SAD_XX.wav",
+      "emotion": "sad",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1017/1017_IWW_ANG_XX.wav",
+      "emotion": "angry",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    },
+    {
+      "audio_path": "dataset/CREMA-D/wav/1017/1017_IWW_FEA_XX.wav",
+      "emotion": "fearful",
+      "reason": "exact_audio_duplicate_with_conflicting_labels"
+    }
+  ],
+  "speakers": 115,
+  "recordings_by_dataset": {
+    "RAVDESS": 1056,
+    "CREMA-D": 7442
+  },
+  "model_eligible_by_dataset": {
+    "RAVDESS": 1055,
+    "CREMA-D": 7436
+  },
+  "speakers_by_dataset": {
+    "CREMA-D": 91,
+    "RAVDESS": 24
+  },
+  "class_distribution": {
+    "RAVDESS": {
+      "neutral": 96,
+      "happy": 192,
+      "sad": 192,
+      "angry": 192,
+      "fearful": 192,
+      "disgust": 192
+    },
+    "CREMA-D": {
+      "angry": 1271,
+      "disgust": 1271,
+      "fearful": 1271,
+      "happy": 1271,
+      "neutral": 1087,
+      "sad": 1271
+    }
+  },
+  "model_class_distribution": {
+    "RAVDESS": {
+      "neutral": 96,
+      "happy": 191,
+      "sad": 192,
+      "angry": 192,
+      "fearful": 192,
+      "disgust": 192
+    },
+    "CREMA-D": {
+      "angry": 1270,
+      "disgust": 1270,
+      "fearful": 1270,
+      "happy": 1270,
+      "neutral": 1086,
+      "sad": 1270
+    }
+  },
+  "split_recordings": {
+    "train": {
+      "RAVDESS": 703,
+      "CREMA-D": 5229
+    },
+    "test": {
+      "RAVDESS": 176,
+      "CREMA-D": 1142
+    },
+    "validation": {
+      "RAVDESS": 176,
+      "CREMA-D": 1065
+    }
+  },
+  "split_class_distribution": {
+    "train": {
+      "RAVDESS": {
+        "neutral": 64,
+        "happy": 127,
+        "sad": 128,
+        "angry": 128,
+        "fearful": 128,
+        "disgust": 128
+      },
+      "CREMA-D": {
+        "angry": 893,
+        "disgust": 893,
+        "fearful": 893,
+        "happy": 893,
+        "neutral": 764,
+        "sad": 893
+      }
+    },
+    "test": {
+      "RAVDESS": {
+        "neutral": 16,
+        "happy": 32,
+        "sad": 32,
+        "angry": 32,
+        "fearful": 32,
+        "disgust": 32
+      },
+      "CREMA-D": {
+        "angry": 195,
+        "disgust": 195,
+        "fearful": 195,
+        "happy": 195,
+        "neutral": 167,
+        "sad": 195
+      }
+    },
+    "validation": {
+      "RAVDESS": {
+        "neutral": 16,
+        "happy": 32,
+        "sad": 32,
+        "angry": 32,
+        "fearful": 32,
+        "disgust": 32
+      },
+      "CREMA-D": {
+        "angry": 182,
+        "disgust": 182,
+        "fearful": 182,
+        "happy": 182,
+        "neutral": 155,
+        "sad": 182
+      }
+    }
+  },
+  "split_speaker_counts": {
+    "train": 80,
+    "validation": 17,
+    "test": 18
+  },
+  "split_speakers": {
+    "train": [
+      "CREMAD_1001",
+      "CREMAD_1004",
+      "CREMAD_1006",
+      "CREMAD_1007",
+      "CREMAD_1009",
+      "CREMAD_1010",
+      "CREMAD_1011",
+      "CREMAD_1012",
+      "CREMAD_1013",
+      "CREMAD_1014",
+      "CREMAD_1016",
+      "CREMAD_1017",
+      "CREMAD_1019",
+      "CREMAD_1020",
+      "CREMAD_1021",
+      "CREMAD_1022",
+      "CREMAD_1024",
+      "CREMAD_1025",
+      "CREMAD_1028",
+      "CREMAD_1029",
+      "CREMAD_1030",
+      "CREMAD_1031",
+      "CREMAD_1034",
+      "CREMAD_1038",
+      "CREMAD_1039",
+      "CREMAD_1040",
+      "CREMAD_1041",
+      "CREMAD_1042",
+      "CREMAD_1043",
+      "CREMAD_1044",
+      "CREMAD_1045",
+      "CREMAD_1047",
+      "CREMAD_1050",
+      "CREMAD_1051",
+      "CREMAD_1052",
+      "CREMAD_1053",
+      "CREMAD_1054",
+      "CREMAD_1055",
+      "CREMAD_1056",
+      "CREMAD_1057",
+      "CREMAD_1059",
+      "CREMAD_1060",
+      "CREMAD_1061",
+      "CREMAD_1063",
+      "CREMAD_1064",
+      "CREMAD_1065",
+      "CREMAD_1066",
+      "CREMAD_1067",
+      "CREMAD_1068",
+      "CREMAD_1069",
+      "CREMAD_1070",
+      "CREMAD_1072",
+      "CREMAD_1074",
+      "CREMAD_1075",
+      "CREMAD_1076",
+      "CREMAD_1077",
+      "CREMAD_1079",
+      "CREMAD_1080",
+      "CREMAD_1081",
+      "CREMAD_1083",
+      "CREMAD_1085",
+      "CREMAD_1087",
+      "CREMAD_1089",
+      "CREMAD_1090",
+      "RAVDESS_01",
+      "RAVDESS_04",
+      "RAVDESS_06",
+      "RAVDESS_07",
+      "RAVDESS_08",
+      "RAVDESS_11",
+      "RAVDESS_12",
+      "RAVDESS_13",
+      "RAVDESS_14",
+      "RAVDESS_15",
+      "RAVDESS_16",
+      "RAVDESS_17",
+      "RAVDESS_19",
+      "RAVDESS_21",
+      "RAVDESS_22",
+      "RAVDESS_23"
+    ],
+    "validation": [
+      "CREMAD_1002",
+      "CREMAD_1003",
+      "CREMAD_1023",
+      "CREMAD_1033",
+      "CREMAD_1035",
+      "CREMAD_1036",
+      "CREMAD_1046",
+      "CREMAD_1058",
+      "CREMAD_1062",
+      "CREMAD_1071",
+      "CREMAD_1073",
+      "CREMAD_1082",
+      "CREMAD_1091",
+      "RAVDESS_05",
+      "RAVDESS_09",
+      "RAVDESS_10",
+      "RAVDESS_20"
+    ],
+    "test": [
+      "CREMAD_1005",
+      "CREMAD_1008",
+      "CREMAD_1015",
+      "CREMAD_1018",
+      "CREMAD_1026",
+      "CREMAD_1027",
+      "CREMAD_1032",
+      "CREMAD_1037",
+      "CREMAD_1048",
+      "CREMAD_1049",
+      "CREMAD_1078",
+      "CREMAD_1084",
+      "CREMAD_1086",
+      "CREMAD_1088",
+      "RAVDESS_02",
+      "RAVDESS_03",
+      "RAVDESS_18",
+      "RAVDESS_24"
+    ]
+  },
+  "speaker_overlap": {
+    "train_validation": [],
+    "train_test": [],
+    "validation_test": []
+  },
+  "sample_rates": {
+    "16000": 8498
+  },
+  "channels": {
+    "1": 8498
+  },
+  "duration_seconds": {
+    "minimum": 1.267937,
+    "maximum": 5.271937,
+    "mean": 2.6894237193457284,
+    "median": 2.56925,
+    "total_hours": 6.348534101944444
+  },
+  "duplicate_manifest_path_groups": [],
+  "duplicate_audio_content_groups": [
+    [
+      "dataset/Actor_07/03-01-03-01-02-01-07.wav",
+      "dataset/Actor_07/03-01-03-01-02-02-07.wav"
+    ],
+    [
+      "dataset/CREMA-D/wav/1006/1006_TIE_HAP_XX.wav",
+      "dataset/CREMA-D/wav/1006/1006_TIE_NEU_XX.wav"
+    ],
+    [
+      "dataset/CREMA-D/wav/1013/1013_WSI_DIS_XX.wav",
+      "dataset/CREMA-D/wav/1013/1013_WSI_SAD_XX.wav"
+    ],
+    [
+      "dataset/CREMA-D/wav/1017/1017_IWW_ANG_XX.wav",
+      "dataset/CREMA-D/wav/1017/1017_IWW_FEA_XX.wav"
+    ]
+  ],
+  "duplicate_content_cross_split_groups": [],
+  "validation_errors": [],
+  "notes": [
+    "RAVDESS calm and surprised are excluded; no label merging is performed.",
+    "Previously examined RAVDESS actors are prohibited from the new final test split.",
+    "The test split remains a public-dataset holdout and is not equivalent to natural-speech evaluation.",
+    "Original sample rates are recorded here; model feature extraction will resample to 16 kHz mono.",
+    "SHA-256 hashes cover decoded PCM frame bytes and identify exact audio-content duplicates.",
+    "Conflicting-label duplicate groups are excluded in full; one redundant same-label copy is excluded."
+  ]
+}

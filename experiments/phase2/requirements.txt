@@ -1,0 +1,9 @@
+# Phase 2 traditional ML environment (Python 3.11)
+joblib==1.6.0
+librosa==0.11.0
+matplotlib==3.11.2
+numpy==2.4.6
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.17.1
+soundfile==0.14.0
