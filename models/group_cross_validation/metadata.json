@@ -1,0 +1,30 @@
+{
+    "experiment": "Actor-grouped cross-validation",
+    "cross_validation": "StratifiedGroupKFold",
+    "folds": 5,
+    "random_state": 42,
+    "development_recordings": 1140,
+    "reserved_test_recordings": 300,
+    "test_evaluated": false,
+    "model": {
+        "type": "SVM",
+        "kernel": "rbf",
+        "C": 10,
+        "gamma": "scale",
+        "class_weight": "balanced"
+    },
+    "feature_sets": {
+        "MFCC": 80,
+        "Advanced": 100
+    },
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "experiment": "Validation error analysis",
+    "sample_rate": 16000,
+    "random_state": 42,
+    "training_recordings": 840,
+    "validation_recordings": 300,
+    "reserved_test_recordings": 300,
+    "selection_policy": "Validation-only diagnostics",
+    "test_evaluated": false,
+    "models": [
+        "MFCC SVM",
+        "Advanced SVM"
+    ],
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

@@ -1,0 +1,13 @@
+gain,gain_db,model,accuracy,macro_f1,agreement_with_1x,happy_recall,angry_recall,happy_misclassified_as_angry_count,happy_misclassified_as_angry_pct
+0.5,-6.0,Baseline,41.67,39.84,76.67,37.5,37.5,0,0.0
+0.5,-6.0,Loudness_Normalized,43.67,43.13,99.0,50.0,42.5,2,5.0
+0.5,-6.0,Volume_Augmented,45.33,46.36,98.33,45.0,57.5,0,0.0
+1.0,0.0,Baseline,46.67,46.15,100.0,50.0,65.0,0,0.0
+1.0,0.0,Loudness_Normalized,43.33,42.86,100.0,50.0,42.5,2,5.0
+1.0,0.0,Volume_Augmented,45.67,46.66,100.0,45.0,60.0,0,0.0
+2.0,6.0,Baseline,40.67,38.46,75.33,55.0,67.5,5,12.5
+2.0,6.0,Loudness_Normalized,43.33,42.86,100.0,50.0,42.5,2,5.0
+2.0,6.0,Volume_Augmented,45.33,46.37,98.33,45.0,62.5,0,0.0
+3.0,9.5,Baseline,34.0,30.5,63.33,40.0,67.5,18,45.0
+3.0,9.5,Loudness_Normalized,43.33,42.86,100.0,50.0,42.5,2,5.0
+3.0,9.5,Volume_Augmented,45.33,46.3,96.0,45.0,60.0,1,2.5

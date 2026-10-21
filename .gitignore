@@ -1,0 +1,39 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# JavaScript dependencies and build output
+frontend/node_modules/
+frontend/dist/
+
+# Datasets and generated feature/embedding caches
+dataset/
+notebooks/*.csv
+experiments/phase2/cache/
+models/**/*.joblib
+models/**/*.npz
+models/**/*.npy
+models/**/*.pt
+models/**/*.bin
+
+# Runtime state and uploaded audio
+backend/speechsense.db
+backend/uploads/
+backend/audio/*.wav
+!backend/audio/.gitkeep
+
+# Logs and local settings
+*.log
+.env
+.env.*
+!.env.example
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

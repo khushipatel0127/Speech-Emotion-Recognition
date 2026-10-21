@@ -1,0 +1,4 @@
+model,test_accuracy,test_macro_f1,recall_angry,recall_calm,recall_disgust,recall_fearful,recall_happy,recall_neutral,recall_sad,recall_surprised
+Baseline,46.67,46.15,65.0,67.5,35.0,50.0,50.0,25.0,37.5,32.5
+Loudness_Normalized,43.33,42.86,42.5,72.5,37.5,42.5,50.0,25.0,35.0,32.5
+Volume_Augmented,45.67,46.66,60.0,55.0,37.5,45.0,45.0,45.0,37.5,40.0

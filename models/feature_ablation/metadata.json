@@ -1,0 +1,176 @@
+{
+    "experiment": "Feature ablation",
+    "cross_validation": "StratifiedGroupKFold",
+    "folds": 5,
+    "random_state": 42,
+    "development_recordings": 1140,
+    "reserved_test_recordings": 300,
+    "test_evaluated": false,
+    "classifier": {
+        "type": "SVM",
+        "kernel": "rbf",
+        "C": 10,
+        "gamma": "scale",
+        "class_weight": "balanced"
+    },
+    "feature_groups": {
+        "MFCC": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79
+        ],
+        "RMS": [
+            80,
+            81
+        ],
+        "ZCR": [
+            82,
+            83
+        ],
+        "Spectral": [
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97
+        ],
+        "Pitch": [
+            98,
+            99
+        ]
+    },
+    "combinations": {
+        "MFCC_only": [
+            "MFCC"
+        ],
+        "MFCC_RMS_ZCR": [
+            "MFCC",
+            "RMS",
+            "ZCR"
+        ],
+        "MFCC_Spectral": [
+            "MFCC",
+            "Spectral"
+        ],
+        "MFCC_Pitch": [
+            "MFCC",
+            "Pitch"
+        ],
+        "MFCC_RMS_ZCR_Spectral": [
+            "MFCC",
+            "RMS",
+            "ZCR",
+            "Spectral"
+        ],
+        "MFCC_RMS_ZCR_Pitch": [
+            "MFCC",
+            "RMS",
+            "ZCR",
+            "Pitch"
+        ],
+        "All_Advanced": [
+            "MFCC",
+            "RMS",
+            "ZCR",
+            "Spectral",
+            "Pitch"
+        ]
+    },
+    "best_combination_by_mean_macro_f1": "MFCC_RMS_ZCR",
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

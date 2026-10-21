@@ -1,0 +1,32 @@
+{
+    "experiment": "SVM and HGB ensemble comparison",
+    "features": "MFCC + RMS + ZCR",
+    "feature_count": 84,
+    "cross_validation": "StratifiedGroupKFold",
+    "folds": 5,
+    "random_state": 42,
+    "development_recordings": 1140,
+    "excluded_test_recordings": 300,
+    "test_evaluated": false,
+    "ensemble_type": "Soft voting",
+    "ensemble_weights": {
+        "SVM": 0.5,
+        "HistGradientBoosting": 0.5
+    },
+    "models": [
+        "SVM",
+        "HistGradientBoosting",
+        "Soft_Voting_Ensemble"
+    ],
+    "best_model_by_mean_macro_f1": "Soft_Voting_Ensemble",
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

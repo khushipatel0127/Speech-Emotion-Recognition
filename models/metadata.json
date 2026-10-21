@@ -1,0 +1,16 @@
+{
+    "model_name": "SVM",
+    "sample_rate": 16000,
+    "n_mfcc": 40,
+    "feature_count": 80,
+    "emotions": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

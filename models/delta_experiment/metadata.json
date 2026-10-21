@@ -1,0 +1,23 @@
+{
+    "feature_set": "mfcc",
+    "feature_count": 80,
+    "model_name": "SVM",
+    "validation_macro_f1": 0.4633940764446914,
+    "validation_accuracy": 0.48,
+    "sample_rate": 16000,
+    "n_mfcc": 40,
+    "feature_order": "MFCC means, MFCC std, delta means, delta std, delta-delta means, delta-delta std",
+    "split_seed": 42,
+    "selection_metric": "validation macro F1, then accuracy",
+    "test_status": "reserved, not evaluated",
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

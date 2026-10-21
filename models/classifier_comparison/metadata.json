@@ -1,0 +1,28 @@
+{
+    "experiment": "Classifier comparison",
+    "features": "MFCC + RMS + ZCR",
+    "feature_count": 84,
+    "cross_validation": "StratifiedGroupKFold",
+    "folds": 5,
+    "random_state": 42,
+    "development_recordings": 1140,
+    "excluded_test_recordings": 300,
+    "test_evaluated": false,
+    "classifiers": [
+        "SVM",
+        "Random_Forest",
+        "Extra_Trees",
+        "HistGradientBoosting"
+    ],
+    "best_classifier_by_mean_macro_f1": "SVM",
+    "emotion_classes": [
+        "angry",
+        "calm",
+        "disgust",
+        "fearful",
+        "happy",
+        "neutral",
+        "sad",
+        "surprised"
+    ]
+}

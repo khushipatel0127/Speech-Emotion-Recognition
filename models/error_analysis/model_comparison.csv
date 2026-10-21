@@ -1,0 +1,3 @@
+model,feature_count,validation_accuracy,validation_macro_f1
+MFCC,80,0.48,0.4633940764446914
+Advanced,100,0.51,0.4847497761974496

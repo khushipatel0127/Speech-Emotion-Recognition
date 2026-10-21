@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+speechsense.db
+uploads/
+audio/*.wav
+!audio/.gitkeep
