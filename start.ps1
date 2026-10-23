@@ -1,6 +1,6 @@
-# SpeechSense — Full Application Launcher
+# SpeechSense - Full Application Launcher
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "         SPEECHSENSE — SPEECH EMOTION RECOGNITION         " -ForegroundColor Cyan
+Write-Host "         SPEECHSENSE - SPEECH EMOTION RECOGNITION         " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
