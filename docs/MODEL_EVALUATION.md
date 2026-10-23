@@ -99,10 +99,16 @@ values remain aspirations rather than achieved results.
 
 ## Real-world evaluation
 
-No manually labeled natural-speech collection is currently available. Therefore
-real-world accuracy is unknown. The required future manifest must contain speaker
-ID, expected emotion, device, format, and file path. Ground truth must be entered
-by the person collecting the recording and must never be copied from model output.
-`evaluate_real_world.py` validates this manifest, converts each file through the
-deployed FFmpeg/inference path, and writes per-recording outputs plus accuracy,
-macro F1, uncertainty counts, and a confusion matrix.
+A preliminary manually labelled collection now contains three intentionally
+Happy phone recordings from one speaker. All files were readable, 5.50–6.12
+seconds long, normally audible, and unclipped. The deployed historical model
+predicted Angry for all three, producing 0/3 accuracy; two results were flagged
+as low-certainty. This establishes a specific Happy→Angry natural-recording
+failure, not an overall natural-speech accuracy estimate.
+
+The current collection is too small, includes only one speaker and one class,
+and must be expanded before reporting aggregate real-world performance. The
+manifest records speaker ID, human-supplied expected emotion, device, format,
+and file path. `evaluate_real_world.py` converts each file through the deployed
+FFmpeg/inference path and writes per-recording outputs plus accuracy, macro F1,
+uncertainty counts, and a confusion matrix.

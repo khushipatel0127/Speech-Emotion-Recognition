@@ -30,6 +30,10 @@
    was retained as an experiment rather than prematurely deployed.
 8. Show the resumable WavLM Colab workflow as the next evidence-based experiment.
 
+The current natural-recording pilot contains three intentionally Happy phone
+recordings. The historical deployed model predicted Angry for all three. Present
+this as evidence motivating Phase 2, not as a complete natural-speech benchmark.
+
 ## Likely questions
 
 **Why six emotions instead of eight?**  

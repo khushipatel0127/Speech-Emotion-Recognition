@@ -1,0 +1,4 @@
+speaker_id,expected_emotion,recording_device,recording_format,audio_path,notes
+USER_01,happy,phone recorder (model unspecified),MP4/AAC,dataset/real_world/USER_01/happy/happy_take_01.mp4,Intentionally happy prompted phrase take 1
+USER_01,happy,phone recorder (model unspecified),MP4/AAC,dataset/real_world/USER_01/happy/happy_take_02.mp4,Intentionally happy prompted phrase take 2
+USER_01,happy,phone recorder (model unspecified),MP4/AAC,dataset/real_world/USER_01/happy/happy_take_03.mp4,Intentionally happy prompted phrase take 3

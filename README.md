@@ -130,8 +130,9 @@ device details, and run `experiments/phase2/evaluate_real_world.py`.
 - The current website model was trained only on RAVDESS and generalizes poorly
   to natural speech.
 - Phase 2 handcrafted models remain below the 70% aspirational target.
-- No manually labeled natural-microphone benchmark has been supplied, so
-  real-world accuracy has not been established.
+- A preliminary one-speaker Happy benchmark produced 0/3 correct predictions
+  from the deployed model. It documents a real failure but is too narrow to
+  establish overall natural-speech accuracy.
 - WavLM validation and the one-time Phase 2 final-test evaluation remain pending.
 
 SpeechSense should be presented as an experimental machine-learning system, not
