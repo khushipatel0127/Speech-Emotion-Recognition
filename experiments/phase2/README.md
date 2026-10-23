@@ -63,8 +63,16 @@ python experiments/phase2/train_volume_augmented.py
 WavLM is implemented as a frozen feature extractor with resumable 64-recording
 shards. Because local CPU extraction is not practical on the target laptop, use
 `SpeechSense_WavLM_Colab.ipynb` with a free GPU runtime. The notebook contains a
-single configurable project path and does not embed credentials or personal
-Drive locations. It runs:
+configurable Drive archive path and does not embed credentials or personal Drive
+locations. Build the upload bundle first; it includes only model-eligible public
+dataset audio and excludes private real-world recordings:
+
+```powershell
+python experiments/phase2/build_colab_bundle.py
+```
+
+Upload `SpeechSense-Colab.zip` and the notebook to My Drive. The notebook
+extracts the bundle once, then runs:
 
 ```powershell
 python experiments/phase2/extract_wavlm_embeddings.py --device auto
