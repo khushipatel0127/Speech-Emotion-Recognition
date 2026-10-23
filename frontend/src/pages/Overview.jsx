@@ -7,12 +7,9 @@ import {
   Layers,
   BarChart2,
   Database,
-  History,
-  Clock,
   Eye,
   Loader2,
   AudioWaveform,
-  CheckCircle2,
   AlertTriangle,
 } from 'lucide-react'
 import EmotionBadge from '../components/EmotionBadge.jsx'

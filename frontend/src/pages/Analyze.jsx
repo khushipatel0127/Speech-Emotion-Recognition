@@ -7,18 +7,15 @@ import {
   Play,
   Pause,
   Square,
-  Radio,
   Loader2,
   CheckCircle2,
   AlertCircle,
   Info,
-  AudioWaveform,
-  Volume2,
   FileAudio,
   History,
   RotateCcw,
 } from 'lucide-react'
-import EmotionBadge, { EMOTION_COLORS, EMOTION_ICONS } from '../components/EmotionBadge.jsx'
+import { EMOTION_COLORS, EMOTION_ICONS } from '../components/emotionTheme.js'
 
 const SUPPORTED_EXTS = ['.wav', '.mp3', '.m4a', '.mp4', '.ogg', '.webm', '.aac', '.flac']
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024 // 25 MB
@@ -852,10 +849,38 @@ export default function Analyze() {
               </h2>
 
               <p style={{ fontSize: '15px', color: '#0F172A', fontWeight: 600 }}>
-                Ensemble Confidence:{' '}
+                Top Model Score:{' '}
                 <span style={{ color: emotionThemeColor, fontSize: '18px', fontWeight: 800 }}>
                   {topScore}%
                 </span>
+              </p>
+
+              {result.is_uncertain && (
+                <div
+                  style={{
+                    margin: '14px auto 0',
+                    maxWidth: '430px',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    border: '1px solid #FDE68A',
+                    backgroundColor: '#FFFBEB',
+                    color: '#92400E',
+                    fontSize: '12px',
+                    lineHeight: 1.5,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px',
+                    textAlign: 'left',
+                  }}
+                >
+                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
+                  <span>{result.uncertainty_note || 'The leading scores are close. Interpret this result cautiously.'}</span>
+                </div>
+              )}
+
+              <p style={{ marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
+                {result.model_version || 'historical-ravdess-8class-v1'}
+                {result.processing_time_ms != null ? ` · ${result.processing_time_ms.toFixed(0)} ms processing` : ''}
               </p>
             </div>
 
@@ -950,7 +975,7 @@ export default function Analyze() {
               >
                 <Info size={16} color="#64748B" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <span>
-                  <strong>Disclaimer:</strong> Predictions are statistical estimates calculated by a machine learning model based on acoustic features and may not reflect an individual's true emotional state.
+                  <strong>Score notice:</strong> These values are calibrated model estimates, not guaranteed confidence or proof of a person's internal emotional state.
                 </span>
               </div>
 

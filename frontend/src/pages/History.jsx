@@ -11,9 +11,6 @@ import {
   AudioWaveform,
   AlertCircle,
   Mic,
-  Calendar,
-  Clock,
-  Check,
 } from 'lucide-react'
 import EmotionBadge from '../components/EmotionBadge.jsx'
 
@@ -64,6 +61,8 @@ export default function History() {
   }, [page, search, selectedEmotion])
 
   useEffect(() => {
+    // Fetching remote history intentionally updates loading and result state.
+    // oxlint-disable-next-line react/set-state-in-effect
     fetchHistory()
   }, [fetchHistory])
 

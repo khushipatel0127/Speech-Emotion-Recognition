@@ -36,7 +36,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.svm import SVC
 
-from handcrafted_features import FEATURE_CONFIG, FEATURE_NAMES
+try:
+    from .handcrafted_features import FEATURE_CONFIG, FEATURE_NAMES
+except ImportError:  # direct script execution
+    from handcrafted_features import FEATURE_CONFIG, FEATURE_NAMES
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -111,7 +114,6 @@ def build_model(
                 C=10.0,
                 gamma="scale",
                 class_weight="balanced",
-                probability=False,
                 cache_size=1_024,
             ),
         )

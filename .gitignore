@@ -14,6 +14,7 @@ frontend/dist/
 dataset/
 notebooks/*.csv
 experiments/phase2/cache/
+models/phase2/cache/
 models/**/*.joblib
 models/**/*.npz
 models/**/*.npy

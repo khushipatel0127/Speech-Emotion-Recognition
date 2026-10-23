@@ -1,11 +1,22 @@
+import atexit
+import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
+
+TEST_RUNTIME = Path(tempfile.mkdtemp(prefix="speechsense-api-test-"))
+atexit.register(shutil.rmtree, TEST_RUNTIME, ignore_errors=True)
+os.environ["SPEECHSENSE_DB_PATH"] = str(TEST_RUNTIME / "speechsense.db")
+os.environ["SPEECHSENSE_RUNTIME_DIR"] = str(TEST_RUNTIME)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from starlette.testclient import TestClient
 from main import app
+from database import init_db
 
+init_db()
 client = TestClient(app)
 
 def test_api_workflow():
@@ -32,6 +43,9 @@ def test_api_workflow():
     assert p_data["predicted_emotion"] == "calm"
     assert "calm" in p_data["probabilities"]
     assert p_data["duration_seconds"] > 0
+    assert p_data["model_version"] == "historical-ravdess-8class-v1"
+    assert p_data["processing_time_ms"] > 0
+    assert isinstance(p_data["is_uncertain"], bool)
     print(f" Prediction OK! ID: {pred_id}, Emotion: {p_data['predicted_emotion']}")
 
     print("\n--- 3. Testing GET /api/history ---")

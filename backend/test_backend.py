@@ -1,5 +1,14 @@
+import atexit
+import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
+
+TEST_RUNTIME = Path(tempfile.mkdtemp(prefix="speechsense-backend-test-"))
+atexit.register(shutil.rmtree, TEST_RUNTIME, ignore_errors=True)
+os.environ["SPEECHSENSE_DB_PATH"] = str(TEST_RUNTIME / "speechsense.db")
+os.environ["SPEECHSENSE_RUNTIME_DIR"] = str(TEST_RUNTIME)
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).resolve().parent))

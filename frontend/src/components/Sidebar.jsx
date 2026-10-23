@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Mic, History, AudioWaveform, Activity } from 'lucide-react'
+import { LayoutDashboard, Mic, History, AudioWaveform } from 'lucide-react'
 
 const navItems = [
   { to: '/', label: 'Overview', icon: LayoutDashboard, end: true },

@@ -1,0 +1,4 @@
+# Optional WavLM extraction dependencies. Prefer the supplied Colab notebook.
+torch>=2.4,<3
+transformers>=4.45,<5
+tqdm>=4.66,<5

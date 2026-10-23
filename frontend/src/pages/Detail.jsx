@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   Download,
@@ -12,11 +12,8 @@ import {
   Calendar,
   AlertCircle,
   Info,
-  CheckCircle2,
-  Volume2,
-  FileAudio,
 } from 'lucide-react'
-import EmotionBadge, { EMOTION_COLORS, EMOTION_ICONS } from '../components/EmotionBadge.jsx'
+import { EMOTION_COLORS, EMOTION_ICONS } from '../components/emotionTheme.js'
 
 export default function Detail() {
   const { id } = useParams()
@@ -289,11 +286,34 @@ export default function Detail() {
             </h2>
 
             <p style={{ fontSize: '15px', color: '#0F172A', fontWeight: 600 }}>
-              Model Probability:{' '}
+              Top Model Score:{' '}
               <span style={{ color: emotionThemeColor, fontSize: '18px', fontWeight: 800 }}>
                 {topScore}%
               </span>
             </p>
+
+            {Boolean(data.is_uncertain) && (
+              <div
+                style={{
+                  margin: '14px auto 0',
+                  maxWidth: '430px',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid #FDE68A',
+                  backgroundColor: '#FFFBEB',
+                  color: '#92400E',
+                  fontSize: '12px',
+                  lineHeight: 1.5,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  textAlign: 'left',
+                }}
+              >
+                <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
+                <span>The top model score is low or close to another emotion. Interpret this result cautiously.</span>
+              </div>
+            )}
           </div>
 
           {/* Audio Player Card */}
@@ -374,6 +394,8 @@ export default function Detail() {
                 { icon: FileText, label: 'Filename', value: data.filename },
                 { icon: Clock, label: 'Duration', value: `${data.duration_seconds.toFixed(2)} seconds` },
                 { icon: HardDrive, label: 'File Size', value: formatFileSize(data.file_size_bytes) },
+                { icon: Info, label: 'Model Version', value: data.model_version || 'Historical model (version unavailable)' },
+                { icon: Clock, label: 'Processing Time', value: data.processing_time_ms != null ? `${data.processing_time_ms.toFixed(0)} ms` : 'Unavailable for older record' },
                 { icon: Calendar, label: 'Analysis Timestamp', value: dateFormatted },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>

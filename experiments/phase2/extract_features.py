@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import os
@@ -17,7 +18,18 @@ import librosa
 import numpy as np
 import sklearn
 
-from handcrafted_features import FEATURE_CONFIG, FEATURE_NAMES, extract_handcrafted_features
+try:
+    from .handcrafted_features import (
+        FEATURE_CONFIG,
+        FEATURE_NAMES,
+        extract_handcrafted_features,
+    )
+except ImportError:  # direct script execution
+    from handcrafted_features import (
+        FEATURE_CONFIG,
+        FEATURE_NAMES,
+        extract_handcrafted_features,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -88,10 +100,25 @@ def write_metadata(manifest_hash: str, total: int, completed: int, elapsed: floa
     METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 
+def extract_one(row: dict[str, str]) -> tuple[str, np.ndarray | None, str | None]:
+    """Process-pool-safe extraction wrapper."""
+    try:
+        values = extract_handcrafted_features(ROOT / row["audio_path"])
+        return row["audio_path"], values, None
+    except Exception as exc:
+        return row["audio_path"], None, str(exc)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, help="Extract at most this many new rows.")
     parser.add_argument("--progress-every", type=int, default=100)
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=1,
+        help="Worker processes. Use 2 on an 8 GB laptop.",
+    )
     args = parser.parse_args()
 
     rows = load_manifest()
@@ -104,6 +131,8 @@ def main() -> int:
         if args.limit < 1:
             parser.error("--limit must be positive")
         pending = pending[: args.limit]
+    if args.jobs < 1 or args.jobs > 4:
+        parser.error("--jobs must be between 1 and 4")
 
     print(f"Eligible recordings: {len(rows)}")
     print(f"Already cached: {len(completed)}")
@@ -119,25 +148,34 @@ def main() -> int:
         writer = csv.DictWriter(handle, fieldnames=OUTPUT_FIELDS)
         if needs_header:
             writer.writeheader()
-        for index, row in enumerate(pending, start=1):
-            try:
-                values = extract_handcrafted_features(ROOT / row["audio_path"])
-                writer.writerow(
-                    {"audio_path": row["audio_path"]}
-                    | {name: f"{value:.12g}" for name, value in zip(FEATURE_NAMES, values)}
-                )
-                completed.add(row["audio_path"])
-            except Exception as exc:  # continue so a complete error inventory is retained
-                errors.append({"audio_path": row["audio_path"], "error": str(exc)})
-            if index % args.progress_every == 0:
-                handle.flush()
-                os.fsync(handle.fileno())
-                elapsed = time.perf_counter() - start
-                print(
-                    f"Processed {index}/{len(pending)} new rows "
-                    f"({index / elapsed:.2f} files/second)",
-                    flush=True,
-                )
+        if args.jobs == 1:
+            iterator = map(extract_one, pending)
+            executor = None
+        else:
+            executor = ThreadPoolExecutor(max_workers=args.jobs)
+            iterator = executor.map(extract_one, pending, chunksize=8)
+        try:
+            for index, (audio_path, values, error) in enumerate(iterator, start=1):
+                if error is None and values is not None:
+                    writer.writerow(
+                        {"audio_path": audio_path}
+                        | {name: f"{value:.12g}" for name, value in zip(FEATURE_NAMES, values)}
+                    )
+                    completed.add(audio_path)
+                else:
+                    errors.append({"audio_path": audio_path, "error": error or "unknown error"})
+                if index % args.progress_every == 0:
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                    elapsed = time.perf_counter() - start
+                    print(
+                        f"Processed {index}/{len(pending)} new rows "
+                        f"({index / elapsed:.2f} files/second)",
+                        flush=True,
+                    )
+        finally:
+            if executor is not None:
+                executor.shutdown(wait=True, cancel_futures=False)
 
     elapsed = time.perf_counter() - start
     write_metadata(manifest_hash, len(rows), len(completed), elapsed)

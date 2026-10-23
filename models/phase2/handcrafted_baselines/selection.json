@@ -1,0 +1,6 @@
+{
+  "selected_validation_model": "calibrated_rbf_svm",
+  "model_path": "models/phase2/handcrafted_baselines/calibrated_rbf_svm.joblib",
+  "test_evaluated": false,
+  "deployed": false
+}

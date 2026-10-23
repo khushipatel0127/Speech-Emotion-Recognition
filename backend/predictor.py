@@ -133,9 +133,23 @@ def predict_from_path(audio_path):
     emotion_scores = dict(
         sorted(emotion_scores.items(), key=lambda item: item[1], reverse=True)
     )
+    ranked_scores = list(emotion_scores.values())
+    top_score = ranked_scores[0]
+    score_margin = top_score - ranked_scores[1] if len(ranked_scores) > 1 else top_score
+    is_uncertain = top_score < 0.50 or score_margin < 0.10
+    model_version = metadata.get("model_version", "historical-ravdess-8class-v1")
 
     return {
         "duration_seconds": round(duration, 2),
         "predicted_emotion": str(predicted_emotion),
         "emotion_scores": emotion_scores,
+        "model_version": str(model_version),
+        "top_score": float(top_score),
+        "score_margin": float(score_margin),
+        "is_uncertain": bool(is_uncertain),
+        "uncertainty_note": (
+            "The top model score is low or close to the next score. Interpret this result cautiously."
+            if is_uncertain
+            else None
+        ),
     }

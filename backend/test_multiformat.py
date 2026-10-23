@@ -1,14 +1,24 @@
+import atexit
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
+import tempfile
+
+TEST_RUNTIME = Path(tempfile.mkdtemp(prefix="speechsense-format-test-"))
+atexit.register(shutil.rmtree, TEST_RUNTIME, ignore_errors=True)
+os.environ["SPEECHSENSE_DB_PATH"] = str(TEST_RUNTIME / "speechsense.db")
+os.environ["SPEECHSENSE_RUNTIME_DIR"] = str(TEST_RUNTIME)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from starlette.testclient import TestClient
 from main import app
 from audio_converter import get_ffmpeg_path
+from database import init_db
 
+init_db()
 client = TestClient(app)
 
 def test_multiformat_pipeline():
@@ -23,7 +33,7 @@ def test_multiformat_pipeline():
     src_wav = root / "dataset" / "Actor_01" / "03-01-01-01-01-01-01.wav"
     assert src_wav.exists(), f"Source audio not found: {src_wav}"
 
-    tmp_dir = root / "backend" / "uploads"
+    tmp_dir = TEST_RUNTIME / "generated-inputs"
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     test_mp3 = tmp_dir / "test_whatsapp_voice.mp3"

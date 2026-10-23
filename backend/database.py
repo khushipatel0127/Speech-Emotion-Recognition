@@ -1,9 +1,15 @@
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Optional, Tuple, List, Dict, Any
 
-DB_PATH = Path(__file__).resolve().parent / "speechsense.db"
+DB_PATH = Path(
+    os.environ.get(
+        "SPEECHSENSE_DB_PATH",
+        str(Path(__file__).resolve().parent / "speechsense.db"),
+    )
+).resolve()
 
 def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH))
@@ -11,6 +17,7 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 def init_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with get_connection() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS predictions (
@@ -21,9 +28,23 @@ def init_db():
                 duration_seconds REAL NOT NULL,
                 file_size_bytes INTEGER NOT NULL,
                 audio_path TEXT,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                model_version TEXT,
+                processing_time_ms REAL,
+                is_uncertain INTEGER
             )
         """)
+        existing_columns = {
+            row[1] for row in conn.execute("PRAGMA table_info(predictions)").fetchall()
+        }
+        migrations = {
+            "model_version": "TEXT",
+            "processing_time_ms": "REAL",
+            "is_uncertain": "INTEGER",
+        }
+        for column, sql_type in migrations.items():
+            if column not in existing_columns:
+                conn.execute(f"ALTER TABLE predictions ADD COLUMN {column} {sql_type}")
         conn.commit()
 
 def save_prediction(
@@ -34,14 +55,18 @@ def save_prediction(
     duration_seconds: float,
     file_size_bytes: int,
     audio_path: Optional[str],
-    created_at: str
+    created_at: str,
+    model_version: Optional[str] = None,
+    processing_time_ms: Optional[float] = None,
+    is_uncertain: Optional[bool] = None,
 ) -> None:
     with get_connection() as conn:
         conn.execute("""
             INSERT INTO predictions (
                 id, filename, predicted_emotion, probabilities,
-                duration_seconds, file_size_bytes, audio_path, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                duration_seconds, file_size_bytes, audio_path, created_at,
+                model_version, processing_time_ms, is_uncertain
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             prediction_id,
             filename,
@@ -50,7 +75,10 @@ def save_prediction(
             duration_seconds,
             file_size_bytes,
             audio_path,
-            created_at
+            created_at,
+            model_version,
+            processing_time_ms,
+            None if is_uncertain is None else int(is_uncertain),
         ))
         conn.commit()
 

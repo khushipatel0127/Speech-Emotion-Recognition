@@ -43,3 +43,32 @@ does not inspect final-test outcomes:
 ```powershell
 python experiments/phase2/train_baselines.py
 ```
+
+Validation-only transfer and gain robustness checks leave the reserved final
+test speakers untouched:
+
+```powershell
+python experiments/phase2/cross_dataset_evaluation.py
+python experiments/phase2/robustness_tests.py
+```
+
+WavLM is implemented as a frozen feature extractor with resumable 64-recording
+shards. Because local CPU extraction is not practical on the target laptop, use
+`SpeechSense_WavLM_Colab.ipynb` with a free GPU runtime. The notebook contains a
+single configurable project path and does not embed credentials or personal
+Drive locations. It runs:
+
+```powershell
+python experiments/phase2/extract_wavlm_embeddings.py --device auto
+python experiments/phase2/train_embedding_classifier.py
+```
+
+Only after both validation reports exist, run the guarded one-time finalization:
+
+```powershell
+python experiments/phase2/finalize_model.py
+```
+
+The finalizer selects the higher validation macro F1 across approaches, refits on
+train plus validation speakers, evaluates the reserved test once, and saves a
+versioned, non-deployed model. It refuses to overwrite an existing final report.

@@ -3,6 +3,7 @@ import math
 import os
 from pathlib import Path
 import shutil
+import time
 import uuid
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, Response
@@ -20,8 +21,9 @@ from predictor import get_models, predict_from_path
 from audio_converter import convert_to_mono_wav, get_ffmpeg_path
 
 BASE_DIR = Path(__file__).resolve().parent
-AUDIO_DIR = BASE_DIR / "audio"
-UPLOADS_DIR = BASE_DIR / "uploads"
+RUNTIME_DIR = Path(os.environ.get("SPEECHSENSE_RUNTIME_DIR", str(BASE_DIR))).resolve()
+AUDIO_DIR = RUNTIME_DIR / "audio"
+UPLOADS_DIR = RUNTIME_DIR / "uploads"
 
 AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
@@ -40,7 +42,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -86,6 +88,7 @@ def health_check():
 
 @app.post("/api/predict")
 async def predict_audio(file: UploadFile = File(...)):
+    processing_started = time.perf_counter()
     raw_filename = file.filename or "recording.webm"
     ext = Path(raw_filename).suffix.lower()
 
@@ -161,6 +164,7 @@ async def predict_audio(file: UploadFile = File(...)):
 
         created_at = datetime.now(timezone.utc).isoformat()
         rel_audio_path = f"audio/{prediction_id}.wav"
+        processing_time_ms = round((time.perf_counter() - processing_started) * 1000, 2)
 
         # Save to SQLite
         save_prediction(
@@ -172,6 +176,9 @@ async def predict_audio(file: UploadFile = File(...)):
             file_size_bytes=file_size,
             audio_path=rel_audio_path,
             created_at=created_at,
+            model_version=result["model_version"],
+            processing_time_ms=processing_time_ms,
+            is_uncertain=result["is_uncertain"],
         )
 
         return {
@@ -182,6 +189,10 @@ async def predict_audio(file: UploadFile = File(...)):
             "emotion_scores": result["emotion_scores"],
             "duration_seconds": result["duration_seconds"],
             "file_size_bytes": file_size,
+            "model_version": result["model_version"],
+            "processing_time_ms": processing_time_ms,
+            "is_uncertain": result["is_uncertain"],
+            "uncertainty_note": result["uncertainty_note"],
             "created_at": created_at,
             "audio_url": f"/audio/{prediction_id}",
         }
@@ -271,6 +282,9 @@ def download_report(prediction_id: str):
         f"Analysis Date    : {record['created_at']}",
         f"Audio Duration   : {record['duration_seconds']} seconds",
         f"Audio File Size  : {record['file_size_bytes']} bytes",
+        f"Model Version    : {record.get('model_version') or 'historical-ravdess-8class-v1'}",
+        f"Processing Time  : {record.get('processing_time_ms') or 'Unavailable'} ms",
+        f"Low-Certainty    : {'Yes' if record.get('is_uncertain') else 'No'}",
         "------------------------------------------------------------",
         f"PREDICTED EMOTION: {record['predicted_emotion'].upper()}",
         "------------------------------------------------------------",
