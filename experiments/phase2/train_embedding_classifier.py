@@ -25,10 +25,17 @@ try:
         MANIFEST_PATH,
         RANDOM_SEED,
         ROOT,
+        evaluate_subsets,
         metric_summary,
     )
 except ImportError:
-    from train_baselines import MANIFEST_PATH, RANDOM_SEED, ROOT, metric_summary
+    from train_baselines import (
+        MANIFEST_PATH,
+        RANDOM_SEED,
+        ROOT,
+        evaluate_subsets,
+        metric_summary,
+    )
 
 
 EMBEDDING_DIR = ROOT / "models" / "phase2" / "wavlm_embeddings"
@@ -104,6 +111,7 @@ def main() -> int:
     classes = [str(value) for value in encoder.classes_]
     train_mask = frame["data_split"].to_numpy() == "train"
     validation_mask = frame["data_split"].to_numpy() == "validation"
+    validation_frame = frame.loc[validation_mask].reset_index(drop=True)
 
     candidates = ["logistic_regression", "linear_svm"]
     if args.include_rbf:
@@ -133,9 +141,13 @@ def main() -> int:
         cv_seconds = time.perf_counter() - started
 
         model = build_embedding_model(name, labels[train_mask], groups[train_mask])
+        fit_started = time.perf_counter()
         model.fit(matrix[train_mask], labels[train_mask])
+        fit_seconds = time.perf_counter() - fit_started
+        inference_started = time.perf_counter()
         validation_predictions = model.predict(matrix[validation_mask])
         probabilities = model.predict_proba(matrix[validation_mask])
+        inference_seconds = time.perf_counter() - inference_started
         if not np.allclose(probabilities.sum(axis=1), 1.0, atol=1e-6):
             raise ValueError(f"Invalid probabilities from {name}")
         model_path = OUTPUT_DIR / f"{name}.joblib"
@@ -148,6 +160,11 @@ def main() -> int:
             },
             "validation": {
                 **metric_summary(labels[validation_mask], validation_predictions),
+                "per_dataset": evaluate_subsets(
+                    validation_frame,
+                    labels[validation_mask],
+                    validation_predictions,
+                ),
                 "classification_report": classification_report(
                     labels[validation_mask],
                     validation_predictions,
@@ -158,6 +175,10 @@ def main() -> int:
                 "confusion_matrix": confusion_matrix(
                     labels[validation_mask], validation_predictions
                 ).tolist(),
+                "fit_seconds": fit_seconds,
+                "inference_ms_per_recording": float(
+                    inference_seconds / validation_mask.sum() * 1_000
+                ),
             },
             "model_path": model_path.relative_to(ROOT).as_posix(),
             "model_size_bytes": model_path.stat().st_size,
