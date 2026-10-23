@@ -97,10 +97,10 @@ def convert_to_mono_wav(
         elif "invalid data found" in stderr_lower or "moov atom not found" in stderr_lower:
             raise ValueError("The audio/video file appears corrupted or unreadable.")
         else:
-            # Extract last descriptive line if possible
-            lines = [line.strip() for line in stderr.splitlines() if line.strip()]
-            error_msg = lines[-1] if lines else "Unknown FFmpeg conversion error"
-            raise ValueError(f"Audio extraction failed: {error_msg}")
+            raise ValueError(
+                "Audio conversion failed. Please verify that the file contains "
+                "a supported, readable audio stream."
+            )
 
     if not output_wav_path.exists() or output_wav_path.stat().st_size <= 44:
         raise ValueError("Audio conversion produced an empty or invalid audio stream.")

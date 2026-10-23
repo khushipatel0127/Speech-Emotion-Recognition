@@ -6,6 +6,7 @@ import argparse
 import json
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 import joblib
 import numpy as np
@@ -25,9 +26,24 @@ GAINS = (0.5, 1.0, 2.0, 3.0)
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--progress-every", type=int, default=100)
+    parser.add_argument(
+        "--selection",
+        type=str,
+        default=str(OUTPUT_DIR / "selection.json"),
+        help="Selection JSON for the fitted candidate to evaluate.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(REPORT_DIR / "gain_robustness.json"),
+        help="Destination JSON report.",
+    )
     args = parser.parse_args()
 
-    selection = json.loads((OUTPUT_DIR / "selection.json").read_text(encoding="utf-8"))
+    selection_path = Path(args.selection)
+    if not selection_path.is_absolute():
+        selection_path = ROOT / selection_path
+    selection = json.loads(selection_path.read_text(encoding="utf-8"))
     model_name = selection["selected_validation_model"]
     model = joblib.load(ROOT / selection["model_path"])
     frame, matrix, labels, _, encoder = load_data()
@@ -100,10 +116,11 @@ def main() -> int:
         "gain_method": "sample multiplication with clipping to [-1, 1]",
         "results": results,
     }
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    (REPORT_DIR / "gain_robustness.json").write_text(
-        json.dumps(report, indent=2), encoding="utf-8"
-    )
+    output_path = Path(args.output)
+    if not output_path.is_absolute():
+        output_path = ROOT / output_path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return 0
 
 

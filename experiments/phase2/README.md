@@ -52,6 +52,14 @@ python experiments/phase2/cross_dataset_evaluation.py
 python experiments/phase2/robustness_tests.py
 ```
 
+The controlled Phase 2 volume experiment creates one deterministic augmented
+copy for each training recording, never validation or test audio:
+
+```powershell
+python experiments/phase2/extract_augmented_features.py --jobs 2
+python experiments/phase2/train_volume_augmented.py
+```
+
 WavLM is implemented as a frozen feature extractor with resumable 64-recording
 shards. Because local CPU extraction is not practical on the target laptop, use
 `SpeechSense_WavLM_Colab.ipynb` with a free GPU runtime. The notebook contains a
@@ -72,3 +80,15 @@ python experiments/phase2/finalize_model.py
 The finalizer selects the higher validation macro F1 across approaches, refits on
 train plus validation speakers, evaluates the reserved test once, and saves a
 versioned, non-deployed model. It refuses to overwrite an existing final report.
+
+For natural-speech evaluation, copy `real_world_manifest.template.csv` to
+`reports/phase2/real_world_manifest.csv`, enter human-supplied labels and file
+paths, then run:
+
+```powershell
+python experiments/phase2/evaluate_real_world.py
+```
+
+The workflow converts every listed file through the deployed FFmpeg path and
+records predictions, uncertainty flags, errors, accuracy, macro F1, and a
+confusion matrix. An empty manifest produces no claimed score.

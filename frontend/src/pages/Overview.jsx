@@ -11,14 +11,25 @@ import {
   Loader2,
   AudioWaveform,
   AlertTriangle,
+  Clock,
+  CalendarDays,
+  ShieldQuestion,
 } from 'lucide-react'
 import EmotionBadge from '../components/EmotionBadge.jsx'
+import { EMOTION_COLORS } from '../components/emotionTheme.js'
 
 export default function Overview() {
   const navigate = useNavigate()
   const [recentAnalyses, setRecentAnalyses] = useState([])
   const [loading, setLoading] = useState(true)
   const [backendHealth, setBackendHealth] = useState({ ok: true, modelsLoaded: true })
+  const [stats, setStats] = useState({
+    total: 0,
+    recent_count: 0,
+    average_duration_seconds: 0,
+    uncertain_count: 0,
+    emotion_distribution: {},
+  })
 
   useEffect(() => {
     let isMounted = true
@@ -31,13 +42,23 @@ export default function Overview() {
       fetch('/api/history?per_page=5')
         .then((res) => res.json())
         .catch(() => ({ items: [] })),
-    ]).then(([healthData, historyData]) => {
+      fetch('/api/stats')
+        .then((res) => res.json())
+        .catch(() => ({
+          total: 0,
+          recent_count: 0,
+          average_duration_seconds: 0,
+          uncertain_count: 0,
+          emotion_distribution: {},
+        })),
+    ]).then(([healthData, historyData, statsData]) => {
       if (isMounted) {
         setBackendHealth({
           ok: healthData.status === 'ok',
           modelsLoaded: !!healthData.models_loaded,
         })
         setRecentAnalyses(historyData.items || [])
+        setStats(statsData)
         setLoading(false)
       }
     })
@@ -50,7 +71,7 @@ export default function Overview() {
   return (
     <div className="fade-in">
       {/* Backend Alert if offline */}
-      {!backendHealth.ok && (
+      {(!backendHealth.ok || !backendHealth.modelsLoaded) && (
         <div
           style={{
             backgroundColor: '#FEF2F2',
@@ -66,7 +87,8 @@ export default function Overview() {
         >
           <AlertTriangle size={20} color="#DC2626" />
           <div style={{ fontSize: '13px', lineHeight: 1.5 }}>
-            <strong>Backend API is not responding.</strong> Ensure FastAPI is running on port 8000 using{' '}
+            <strong>{backendHealth.ok ? 'The prediction model is unavailable.' : 'Backend API is not responding.'}</strong>{' '}
+            Ensure FastAPI is running on port 8000 using{' '}
             <code style={{ background: '#FEE2E2', padding: '2px 6px', borderRadius: '4px' }}>
               .venv\Scripts\python.exe -m uvicorn main:app --app-dir backend --port 8000
             </code>
@@ -76,6 +98,7 @@ export default function Overview() {
 
       {/* Hero Banner */}
       <div
+        className="speechsense-hero"
         style={{
           background: 'linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 45%, #2563EB 100%)',
           borderRadius: '20px',
@@ -93,6 +116,7 @@ export default function Overview() {
       >
         {/* Background glow circle */}
         <div
+          className="speechsense-hero-waveform"
           style={{
             position: 'absolute',
             right: '-60px',
@@ -215,6 +239,164 @@ export default function Overview() {
         </div>
       </div>
 
+      {/* Database-backed dashboard statistics */}
+      <div
+        className="overview-stats-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1.05fr) minmax(320px, 0.95fr)',
+          gap: '20px',
+          marginBottom: '28px',
+        }}
+      >
+        <div
+          className="overview-kpi-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: '14px',
+          }}
+        >
+          {[
+            {
+              label: 'Total Analyses',
+              value: stats.total,
+              detail: 'Stored in SQLite',
+              icon: Database,
+              color: '#2563EB',
+              background: '#EFF6FF',
+            },
+            {
+              label: 'Last 7 Days',
+              value: stats.recent_count,
+              detail: 'Recent predictions',
+              icon: CalendarDays,
+              color: '#7C3AED',
+              background: '#F5F3FF',
+            },
+            {
+              label: 'Average Audio',
+              value: `${Number(stats.average_duration_seconds || 0).toFixed(1)}s`,
+              detail: 'Recording duration',
+              icon: Clock,
+              color: '#059669',
+              background: '#ECFDF5',
+            },
+            {
+              label: 'Low-Certainty',
+              value: stats.uncertain_count,
+              detail: 'Flagged predictions',
+              icon: ShieldQuestion,
+              color: '#D97706',
+              background: '#FFFBEB',
+            },
+          ].map((card) => {
+            const Icon = card.icon
+            return (
+              <div
+                key={card.label}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '14px',
+                  padding: '18px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    flexShrink: 0,
+                    borderRadius: '11px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: card.background,
+                  }}
+                >
+                  <Icon size={20} color={card.color} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
+                    {card.value}
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#475569', marginTop: '4px' }}>
+                    {card.label}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>{card.detail}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        <div
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            borderRadius: '14px',
+            padding: '20px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}
+        >
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>Emotion Distribution</h3>
+          <p style={{ fontSize: '12px', color: '#64748B', marginTop: '3px', marginBottom: '16px' }}>
+            Real predictions saved in analysis history
+          </p>
+          {Object.keys(stats.emotion_distribution || {}).length === 0 ? (
+            <div
+              style={{
+                minHeight: '120px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#94A3B8',
+                fontSize: '12px',
+              }}
+            >
+              Analyze audio to populate this chart.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {Object.entries(stats.emotion_distribution).map(([emotion, count]) => {
+                const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0
+                const color = EMOTION_COLORS[emotion] || '#64748B'
+                return (
+                  <div key={emotion} title={`${count} ${emotion} prediction${count === 1 ? '' : 's'}`}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '11px',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      <span style={{ color: '#475569', fontWeight: 600, textTransform: 'capitalize' }}>{emotion}</span>
+                      <span style={{ color: '#64748B' }}>{count} · {percentage.toFixed(1)}%</span>
+                    </div>
+                    <div style={{ height: '7px', borderRadius: '999px', backgroundColor: '#F1F5F9', overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          width: `${percentage}%`,
+                          height: '100%',
+                          borderRadius: '999px',
+                          backgroundColor: color,
+                          transition: 'width 0.35s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Feature Cards Grid */}
       <div
         style={{
@@ -230,7 +412,7 @@ export default function Overview() {
             color: '#2563EB',
             bg: '#EFF6FF',
             title: 'Real-Time Inference',
-            desc: 'Processes WAV, MP3, M4A, MP4, and live microphone audio within milliseconds, generating complete predictions instantly.',
+            desc: 'Processes WAV, MP3, M4A, MP4, and live microphone audio through one validated backend prediction path.',
           },
           {
             icon: Layers,

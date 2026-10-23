@@ -22,6 +22,17 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
+To reproduce the Phase 2 traditional-model experiments, also install their
+locked scientific environment:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r experiments\phase2\requirements.txt
+```
+
+The WavLM packages are intentionally separate in
+`experiments/phase2/requirements-wavlm.txt` because they are large and the
+recommended execution target is a free Colab GPU runtime.
+
 Verify model and audio imports:
 
 ```powershell

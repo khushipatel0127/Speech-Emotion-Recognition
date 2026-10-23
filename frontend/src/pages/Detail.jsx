@@ -70,6 +70,7 @@ export default function Detail() {
   if (loading) {
     return (
       <div
+        className="detail-layout"
         style={{
           display: 'flex',
           flexDirection: 'column',

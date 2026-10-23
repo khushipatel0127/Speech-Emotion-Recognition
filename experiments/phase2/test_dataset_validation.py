@@ -8,6 +8,8 @@ import unittest
 from collections import defaultdict
 from pathlib import Path
 
+from .extract_augmented_features import GAINS, assigned_gain, load_training_rows
+
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_DIR = ROOT / "reports" / "phase2"
@@ -72,6 +74,18 @@ class DatasetManifestTests(unittest.TestCase):
     def test_report_passed(self) -> None:
         self.assertEqual(self.report["status"], "passed")
         self.assertEqual(self.report["validation_errors"], [])
+
+    def test_volume_augmentation_targets_training_only(self) -> None:
+        rows = load_training_rows()
+        self.assertEqual(len(rows), 5_932)
+        self.assertTrue(all(row["data_split"] == "train" for row in rows))
+        paths = [row["audio_path"] for row in rows]
+        self.assertEqual(len(paths), len(set(paths)))
+        self.assertTrue(all(assigned_gain(path) in GAINS for path in paths))
+        self.assertEqual(
+            [assigned_gain(path) for path in paths[:25]],
+            [assigned_gain(path) for path in paths[:25]],
+        )
 
 
 if __name__ == "__main__":

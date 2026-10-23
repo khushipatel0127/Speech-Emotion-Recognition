@@ -57,6 +57,11 @@ gain, and cross-dataset macro F1 is only 24.74% for CREMA-D → RAVDESS and 18.0
 for RAVDESS → CREMA-D. These measured failures are why Phase 2 has not replaced
 the historical website model.
 
+A training-only volume experiment retained 46.05% macro F1 at 3× gain, compared
+with 31.80% for the unaugmented model, but reduced normal validation macro F1
+from 47.45% to 46.73%. It is preserved as a robustness candidate and is not
+deployed.
+
 See [MODEL_EVALUATION.md](docs/MODEL_EVALUATION.md) for full interpretation.
 
 ## Project layout
@@ -93,18 +98,30 @@ Detailed setup and troubleshooting are in [SETUP_WINDOWS.md](docs/SETUP_WINDOWS.
 ## Reproducing Phase 2
 
 ```powershell
+.\.venv\Scripts\python.exe -m pip install -r experiments\phase2\requirements.txt
 .\.venv\Scripts\python.exe experiments\phase2\dataset_validation.py
 .\.venv\Scripts\python.exe -m unittest experiments.phase2.test_dataset_validation -v
 .\.venv\Scripts\python.exe experiments\phase2\extract_features.py --jobs 2
 .\.venv\Scripts\python.exe experiments\phase2\train_baselines.py
 .\.venv\Scripts\python.exe experiments\phase2\cross_dataset_evaluation.py
 .\.venv\Scripts\python.exe experiments\phase2\robustness_tests.py
+.\.venv\Scripts\python.exe experiments\phase2\extract_augmented_features.py --jobs 2
+.\.venv\Scripts\python.exe experiments\phase2\train_volume_augmented.py
+.\.venv\Scripts\python.exe experiments\phase2\robustness_tests.py `
+  --selection models/phase2/volume_augmented/selection.json `
+  --output reports/phase2/handcrafted_baselines/volume_augmented_gain_robustness.json
 ```
 
 For WavLM, open
 [SpeechSense_WavLM_Colab.ipynb](experiments/phase2/SpeechSense_WavLM_Colab.ipynb)
 in Google Colab, select a free GPU runtime, configure the single project path,
 and run the cells. Embeddings are saved in resumable 64-recording shards.
+
+Natural microphone or phone recordings can be evaluated without treating model
+output as ground truth. Copy
+`experiments/phase2/real_world_manifest.template.csv` to
+`reports/phase2/real_world_manifest.csv`, fill in manually assigned labels and
+device details, and run `experiments/phase2/evaluate_real_world.py`.
 
 ## Limitations
 

@@ -91,6 +91,32 @@ button {
   animation: spin 1s linear infinite;
 }
 
+@media (max-width: 900px) {
+  .overview-stats-grid,
+  .analysis-layout,
+  .detail-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .speechsense-hero {
+    padding: 28px !important;
+  }
+
+  .speechsense-hero-waveform {
+    display: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .overview-kpi-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .speechsense-hero {
+    padding: 24px 20px !important;
+  }
+}
+
 @keyframes waveBar {
   0%, 100% {
     transform: scaleY(0.35);

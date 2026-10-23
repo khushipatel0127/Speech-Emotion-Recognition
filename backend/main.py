@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 import math
 import os
 from pathlib import Path
@@ -15,6 +16,8 @@ from database import (
     save_prediction,
     get_predictions,
     get_prediction_by_id,
+    get_prediction_stats,
+    delete_prediction,
     delete_all_predictions,
 )
 from predictor import get_models, predict_from_path
@@ -32,11 +35,12 @@ SUPPORTED_EXTENSIONS = {
     ".wav", ".mp3", ".m4a", ".mp4", ".ogg", ".oga", ".webm", ".aac", ".wma", ".flac"
 }
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
+logger = logging.getLogger("speechsense.api")
 
 app = FastAPI(
     title="SpeechSense API",
     description="Speech Emotion Recognition Backend using Ensemble ML & FFmpeg Audio Conversion",
-    version="1.1.0",
+    version="1.2.0",
 )
 
 app.add_middleware(
@@ -148,16 +152,24 @@ async def predict_audio(file: UploadFile = File(...)):
             )
         except ValueError as ve:
             raise HTTPException(status_code=400, detail=str(ve))
-        except Exception as ex:
-            raise HTTPException(status_code=500, detail=f"Audio processing error: {str(ex)}")
+        except Exception:
+            logger.exception("Unexpected audio conversion failure")
+            raise HTTPException(
+                status_code=500,
+                detail="The server could not process this audio file.",
+            )
 
         # Run real ML prediction on converted 16kHz mono WAV
         try:
             result = predict_from_path(temp_converted_wav)
         except ValueError as ve:
             raise HTTPException(status_code=400, detail=str(ve))
-        except Exception as ex:
-            raise HTTPException(status_code=500, detail=f"Prediction error: {str(ex)}")
+        except Exception:
+            logger.exception("Unexpected model prediction failure")
+            raise HTTPException(
+                status_code=500,
+                detail="The server could not analyze this recording.",
+            )
 
         # Move/copy converted WAV to permanent storage for in-browser playback
         shutil.copy2(temp_converted_wav, permanent_audio_path)
@@ -233,6 +245,11 @@ def get_history(
         "pages": pages,
     }
 
+
+@app.get("/api/stats")
+def get_stats():
+    return get_prediction_stats()
+
 @app.get("/api/history/{prediction_id}")
 def get_history_detail(prediction_id: str):
     record = get_prediction_by_id(prediction_id)
@@ -256,6 +273,27 @@ def clear_history():
         "status": "success",
         "deleted": deleted_count,
         "message": f"Successfully deleted {deleted_count} prediction records.",
+    }
+
+
+@app.delete("/api/history/{prediction_id}")
+def remove_history_entry(prediction_id: str):
+    record = delete_prediction(prediction_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Prediction not found")
+
+    audio_path = AUDIO_DIR / f"{prediction_id}.wav"
+    if audio_path.exists():
+        try:
+            audio_path.unlink()
+        except OSError:
+            logger.warning("Could not delete stored audio for %s", prediction_id)
+
+    return {
+        "status": "success",
+        "deleted": 1,
+        "id": prediction_id,
+        "message": "Prediction deleted.",
     }
 
 @app.get("/api/report/{prediction_id}")

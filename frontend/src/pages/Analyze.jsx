@@ -304,6 +304,7 @@ export default function Analyze() {
       </div>
 
       <div
+        className="analysis-layout"
         style={{
           display: 'grid',
           gridTemplateColumns: result ? '1fr 1.15fr' : '1fr',

@@ -36,6 +36,8 @@ export default function History() {
   const [loading, setLoading] = useState(true)
   const [showClearModal, setShowClearModal] = useState(false)
   const [clearing, setClearing] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
 
   const fetchHistory = useCallback(async () => {
     setLoading(true)
@@ -77,6 +79,25 @@ export default function History() {
       console.error('Failed to clear history:', err)
     } finally {
       setClearing(false)
+    }
+  }
+
+  const handleDeleteEntry = async () => {
+    if (!deleteTarget) return
+    setDeletingId(deleteTarget.id)
+    try {
+      const res = await fetch(`/api/history/${deleteTarget.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Delete request failed')
+      setDeleteTarget(null)
+      if (items.length === 1 && page > 1) {
+        setPage((current) => current - 1)
+      } else {
+        await fetchHistory()
+      }
+    } catch (err) {
+      console.error('Failed to delete history entry:', err)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -222,6 +243,102 @@ export default function History() {
               >
                 {clearing ? <Loader2 size={16} className="spin" /> : <Trash2 size={16} />}
                 <span>{clearing ? 'Clearing...' : 'Delete All'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-entry-title"
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+              maxWidth: '420px',
+              width: '100%',
+              padding: '28px',
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '50%',
+                backgroundColor: '#FEF2F2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+              }}
+            >
+              <Trash2 size={25} color="#DC2626" />
+            </div>
+            <h3
+              id="delete-entry-title"
+              style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}
+            >
+              Delete This Analysis?
+            </h3>
+            <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.5, marginBottom: '24px' }}>
+              The record and stored audio for <strong>{deleteTarget.filename}</strong> will be permanently deleted.
+            </p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={Boolean(deletingId)}
+                style={{
+                  flex: 1,
+                  padding: '11px',
+                  borderRadius: '10px',
+                  border: '1px solid #CBD5E1',
+                  backgroundColor: '#FFFFFF',
+                  color: '#475569',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteEntry}
+                disabled={Boolean(deletingId)}
+                style={{
+                  flex: 1,
+                  padding: '11px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: '#DC2626',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: deletingId ? 'not-allowed' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                }}
+              >
+                {deletingId ? <Loader2 size={16} className="spin" /> : <Trash2 size={16} />}
+                <span>{deletingId ? 'Deleting...' : 'Delete Analysis'}</span>
               </button>
             </div>
           </div>
@@ -492,6 +609,7 @@ export default function History() {
                           {dateStr}
                         </td>
                         <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                           <button
                             onClick={() => navigate(`/history/${item.id}`)}
                             style={{
@@ -520,6 +638,26 @@ export default function History() {
                             <Eye size={14} />
                             <span>View Result</span>
                           </button>
+                          <button
+                            onClick={() => setDeleteTarget(item)}
+                            aria-label={`Delete analysis for ${item.filename}`}
+                            title="Delete analysis"
+                            style={{
+                              backgroundColor: '#FEF2F2',
+                              color: '#DC2626',
+                              border: '1px solid #FECACA',
+                              borderRadius: '8px',
+                              width: '34px',
+                              height: '32px',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                          </div>
                         </td>
                       </tr>
                     )

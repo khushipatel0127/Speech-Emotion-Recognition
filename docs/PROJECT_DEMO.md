@@ -22,10 +22,12 @@
 5. Show History search and emotion filtering.
 6. Present Phase 2 methodology: six common labels, 115 speakers, exact-duplicate
    detection, speaker-independent splitting, grouped cross-validation, a sealed
-   final test set, and separate dataset results.
+   final test set, separate dataset results, and training-only augmentation.
 7. Present the measured limitation honestly: the best handcrafted validation
    macro F1 is 47.45%, cross-dataset transfer is weak, and gain sensitivity is
-   substantial. Explain why the candidate was not prematurely deployed.
+   substantial. The augmented model improves 3×-gain macro F1 from 31.80% to
+   46.05% but slightly lowers normal validation performance, so explain why it
+   was retained as an experiment rather than prematurely deployed.
 8. Show the resumable WavLM Colab workflow as the next evidence-based experiment.
 
 ## Likely questions

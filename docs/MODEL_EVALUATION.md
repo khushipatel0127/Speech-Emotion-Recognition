@@ -56,14 +56,35 @@ and acted-expression styles.
 
 | Gain | Accuracy | Macro F1 | Agreement with 1× | Happy recall | Happy → Angry |
 |---:|---:|---:|---:|---:|---:|
-| 0.5× | 48.03% | 47.11% | 77.68% | 43.93% | 28/214 |
+| 0.5× | 48.03% | 47.11% | 77.68% | 44.39% | 28/214 |
 | 1.0× | 48.51% | 47.45% | 100.00% | 37.38% | 53/214 |
-| 2.0× | 43.27% | 40.79% | 70.27% | 21.03% | 87/214 |
+| 2.0× | 43.27% | 40.79% | 70.27% | 21.50% | 87/214 |
 | 3.0× | 36.99% | 31.80% | 52.22% | 13.08% | 98/214 |
 
 Artificial gain is only one robustness stress and is not a substitute for real
 WhatsApp, microphone, noise, and codec evaluation. The degradation is severe
 enough that this candidate should not replace the deployed model.
+
+### Training-only volume augmentation
+
+One deterministic gain-augmented copy (0.5×, 0.75×, 1.5×, or 2.0×) was added
+for each training recording. Validation and test audio were never augmented for
+fitting. The selected augmented SVM reached 46.17% grouped-CV accuracy, 45.77%
+grouped-CV macro F1, 47.62% validation accuracy, and 46.73% validation macro F1.
+It therefore trails the unaugmented SVM on the normal validation condition.
+
+The augmentation substantially improves the gain stress test:
+
+| Gain | Accuracy | Macro F1 | Happy recall | Happy → Angry |
+|---:|---:|---:|---:|---:|
+| 0.5× | 46.82% | 46.01% | 40.65% | 45/214 |
+| 1.0× | 47.62% | 46.73% | 39.25% | 49/214 |
+| 2.0× | 47.30% | 46.27% | 35.98% | 60/214 |
+| 3.0× | 47.22% | 46.05% | 35.05% | 62/214 |
+
+This is a measured robustness/normal-performance tradeoff. The augmented model
+is retained as an experiment, but it is not the primary validation winner and
+has not been deployed.
 
 ## WavLM status
 
@@ -82,3 +103,6 @@ No manually labeled natural-speech collection is currently available. Therefore
 real-world accuracy is unknown. The required future manifest must contain speaker
 ID, expected emotion, device, format, and file path. Ground truth must be entered
 by the person collecting the recording and must never be copied from model output.
+`evaluate_real_world.py` validates this manifest, converts each file through the
+deployed FFmpeg/inference path, and writes per-recording outputs plus accuracy,
+macro F1, uncertainty counts, and a confusion matrix.

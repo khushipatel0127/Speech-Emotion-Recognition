@@ -59,9 +59,11 @@ are excluded from those fit operations.
 ## Persistence
 
 SQLite stores prediction IDs, filenames, emotion results, serialized score maps,
-duration, input size, stored-audio reference, and timestamp. Phase 2 integration
-will add model-version and processing-time fields through a backward-compatible
-migration so historical predictions remain readable.
+duration, input size, stored-audio reference, timestamp, model version,
+processing time, and an uncertainty flag. It also supplies live Overview totals,
+recent activity, average duration, and emotion distribution. A backward-compatible
+startup migration keeps historical predictions readable. The API supports bulk
+history removal and per-entry removal of both the row and stored WAV.
 
 ## Artifact safety
 

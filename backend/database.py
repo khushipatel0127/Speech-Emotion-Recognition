@@ -135,6 +135,69 @@ def get_prediction_by_id(prediction_id: str) -> Optional[Dict[str, Any]]:
             pass
         return res
 
+
+def get_prediction_stats() -> Dict[str, Any]:
+    with get_connection() as conn:
+        summary = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS total,
+                COALESCE(AVG(duration_seconds), 0) AS average_duration_seconds,
+                COALESCE(SUM(CASE WHEN is_uncertain = 1 THEN 1 ELSE 0 END), 0)
+                    AS uncertain_count,
+                COALESCE(SUM(
+                    CASE WHEN datetime(created_at) >= datetime('now', '-7 days')
+                    THEN 1 ELSE 0 END
+                ), 0) AS recent_count
+            FROM predictions
+            """
+        ).fetchone()
+        emotion_rows = conn.execute(
+            """
+            SELECT LOWER(predicted_emotion) AS emotion, COUNT(*) AS count
+            FROM predictions
+            GROUP BY LOWER(predicted_emotion)
+            ORDER BY count DESC, emotion ASC
+            """
+        ).fetchall()
+        model_rows = conn.execute(
+            """
+            SELECT COALESCE(model_version, 'historical-ravdess-8class-v1') AS version,
+                   COUNT(*) AS count
+            FROM predictions
+            GROUP BY COALESCE(model_version, 'historical-ravdess-8class-v1')
+            ORDER BY count DESC, version ASC
+            """
+        ).fetchall()
+
+    return {
+        "total": int(summary["total"]),
+        "recent_count": int(summary["recent_count"]),
+        "average_duration_seconds": round(
+            float(summary["average_duration_seconds"]), 2
+        ),
+        "uncertain_count": int(summary["uncertain_count"]),
+        "emotion_distribution": {
+            str(row["emotion"]): int(row["count"]) for row in emotion_rows
+        },
+        "model_versions": {
+            str(row["version"]): int(row["count"]) for row in model_rows
+        },
+    }
+
+
+def delete_prediction(prediction_id: str) -> Optional[Dict[str, Any]]:
+    """Delete one prediction and return its former database row."""
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM predictions WHERE id = ?", (prediction_id,)
+        ).fetchone()
+        if not row:
+            return None
+        conn.execute("DELETE FROM predictions WHERE id = ?", (prediction_id,))
+        conn.commit()
+        return dict(row)
+
 def delete_all_predictions() -> int:
     with get_connection() as conn:
         total = conn.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]

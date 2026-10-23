@@ -48,7 +48,17 @@ def test_api_workflow():
     assert isinstance(p_data["is_uncertain"], bool)
     print(f" Prediction OK! ID: {pred_id}, Emotion: {p_data['predicted_emotion']}")
 
-    print("\n--- 3. Testing GET /api/history ---")
+    print("\n--- 3. Testing GET /api/stats ---")
+    res = client.get("/api/stats")
+    assert res.status_code == 200
+    stats = res.json()
+    assert stats["total"] == 1
+    assert stats["emotion_distribution"]["calm"] == 1
+    assert stats["average_duration_seconds"] > 0
+    assert stats["recent_count"] == 1
+    print(" SQLite dashboard statistics OK!")
+
+    print("\n--- 4. Testing GET /api/history ---")
     res = client.get("/api/history")
     assert res.status_code == 200
     h_data = res.json()
@@ -56,7 +66,7 @@ def test_api_workflow():
     assert any(item["id"] == pred_id for item in h_data["items"])
     print(f" History OK! Total records: {h_data['total']}")
 
-    print("\n--- 4. Testing GET /api/history/{id} ---")
+    print("\n--- 5. Testing GET /api/history/{id} ---")
     res = client.get(f"/api/history/{pred_id}")
     assert res.status_code == 200
     d_data = res.json()
@@ -64,7 +74,7 @@ def test_api_workflow():
     assert d_data["predicted_emotion"] == "calm"
     print(" History detail OK!")
 
-    print("\n--- 5. Testing GET /api/report/{id} ---")
+    print("\n--- 6. Testing GET /api/report/{id} ---")
     res = client.get(f"/api/report/{pred_id}")
     assert res.status_code == 200
     assert "attachment" in res.headers.get("content-disposition", "")
@@ -72,14 +82,14 @@ def test_api_workflow():
     assert "CALM" in res.text
     print(" Report generation OK!")
 
-    print("\n--- 6. Testing GET /audio/{id} ---")
+    print("\n--- 7. Testing GET /audio/{id} ---")
     res = client.get(f"/audio/{pred_id}")
     assert res.status_code == 200
     assert res.headers["content-type"] == "audio/wav"
     assert len(res.content) == len(file_bytes)
     print(" Audio playback streaming OK!")
 
-    print("\n--- 7. Testing Validation & Error Handling ---")
+    print("\n--- 8. Testing Validation & Error Handling ---")
     # Non-wav
     res = client.post("/api/predict", files={"file": ("test.txt", b"hello world", "text/plain")})
     assert res.status_code == 400
@@ -88,7 +98,22 @@ def test_api_workflow():
     assert res.status_code == 400
     print(" Error handling & input validation OK!")
 
-    print("\n--- 8. Testing DELETE /api/history ---")
+    print("\n--- 9. Testing DELETE /api/history/{id} ---")
+    res = client.delete(f"/api/history/{pred_id}")
+    assert res.status_code == 200
+    assert res.json()["id"] == pred_id
+    assert client.get(f"/api/history/{pred_id}").status_code == 404
+    assert client.get(f"/audio/{pred_id}").status_code == 404
+    print(" Individual history and audio deletion OK!")
+
+    # Create one more entry to verify bulk deletion independently.
+    res = client.post(
+        "/api/predict",
+        files={"file": ("bulk_delete_sample.wav", file_bytes, "audio/wav")},
+    )
+    assert res.status_code == 200
+
+    print("\n--- 10. Testing DELETE /api/history ---")
     res = client.delete("/api/history")
     assert res.status_code == 200
     del_data = res.json()
