@@ -5,10 +5,10 @@ acoustic patterns in speech. It accepts uploaded audio or browser microphone
 recordings, converts them to 16 kHz mono WAV with FFmpeg, returns model scores,
 and stores prediction history in SQLite.
 
-The application keeps the historical eight-class RAVDESS ensemble as its active
-rollback model. A leakage-safe six-class WavLM-Large candidate is now trained,
-final-tested, packaged, and supported by the backend loader. Activating it
-requires the optional PyTorch/Transformers runtime and the backbone download.
+The active deployment is the leakage-safe six-class WavLM-Large model. The
+historical eight-class RAVDESS ensemble remains preserved as an immediate
+rollback option. Local WavLM inference uses the optional PyTorch/Transformers
+runtime and a cached backbone download.
 
 ## Supported application features
 

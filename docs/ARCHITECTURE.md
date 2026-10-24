@@ -20,9 +20,10 @@ from the backend model response and is stored with the corresponding prediction.
 
 ## Current deployment
 
-`models/deployment.json` selects a versioned backend path. The historical path
-loads the preserved eight-class artifacts from `models/final_model/` and keeps
-the 84-feature soft-voting ensemble available for immediate rollback.
+`models/deployment.json` selects a versioned backend path. Phase 2 WavLM-Large
+is active. The historical path loads the preserved eight-class artifacts from
+`models/final_model/` and keeps the 84-feature soft-voting ensemble available
+for immediate rollback.
 
 The Phase 2 path loads WavLM-Large once, mean-pools its masked hidden states, and
 passes the 1,024-value embedding to the validated six-class Logistic Regression

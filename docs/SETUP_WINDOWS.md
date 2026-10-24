@@ -40,10 +40,10 @@ To install the Phase 2 inference runtime:
 ```
 
 The first Phase 2 startup downloads `microsoft/wavlm-large` (about 1.26 GB) to
-the Hugging Face cache. Set `active_model` in `models/deployment.json` to
-`phase2_wavlm` only after the dependencies and backbone are available. Set it
-back to `historical` for instant rollback. The fitted classifier itself is the
-portable `portable_classifier.npz` artifact, so it does not depend on the exact
+the Hugging Face cache. The repository configuration activates
+`phase2_wavlm`; set `active_model` in `models/deployment.json` back to
+`historical` for instant rollback. The fitted classifier itself is the portable
+`portable_classifier.npz` artifact, so it does not depend on the exact
 scikit-learn version used by Colab.
 
 Verify model and audio imports:

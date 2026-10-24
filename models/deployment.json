@@ -1,5 +1,5 @@
 {
-  "active_model": "historical",
+  "active_model": "phase2_wavlm",
   "historical": {
     "model_version": "historical-ravdess-8class-v1",
     "model_dir": "models/final_model"
@@ -13,6 +13,7 @@
     "pooling": "mean",
     "sample_rate": 16000,
     "max_duration_seconds": 20,
-    "device": "cpu"
+    "device": "cpu",
+    "local_files_only": true
   }
 }

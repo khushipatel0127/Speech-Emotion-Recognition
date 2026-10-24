@@ -12,6 +12,7 @@ frontend/dist/
 SpeechSense-Colab.zip
 reports/phase2/*.zip
 reports/phase2/colab_*.png
+reports/phase2/speechsense_*.png
 
 # Datasets and generated feature/embedding caches
 dataset/

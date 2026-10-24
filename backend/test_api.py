@@ -26,6 +26,8 @@ def test_api_workflow():
     data = res.json()
     assert data["status"] == "ok"
     assert data["models_loaded"] is True
+    active_model = data["model"]
+    active_classes = set(active_model["classes"])
     print(" Health check OK!")
 
     print("\n--- 2. Testing POST /api/predict with real WAV ---")
@@ -40,10 +42,10 @@ def test_api_workflow():
     assert res.status_code == 200, f"Predict failed: {res.text}"
     p_data = res.json()
     pred_id = p_data["id"]
-    assert p_data["predicted_emotion"] == "calm"
-    assert "calm" in p_data["probabilities"]
+    assert p_data["predicted_emotion"] in active_classes
+    assert set(p_data["probabilities"]) == active_classes
     assert p_data["duration_seconds"] > 0
-    assert p_data["model_version"] == "historical-ravdess-8class-v1"
+    assert p_data["model_version"] == active_model["model_version"]
     assert p_data["processing_time_ms"] > 0
     assert isinstance(p_data["is_uncertain"], bool)
     print(f" Prediction OK! ID: {pred_id}, Emotion: {p_data['predicted_emotion']}")
@@ -53,7 +55,7 @@ def test_api_workflow():
     assert res.status_code == 200
     stats = res.json()
     assert stats["total"] == 1
-    assert stats["emotion_distribution"]["calm"] == 1
+    assert stats["emotion_distribution"][p_data["predicted_emotion"]] == 1
     assert stats["average_duration_seconds"] > 0
     assert stats["recent_count"] == 1
     print(" SQLite dashboard statistics OK!")
@@ -71,7 +73,7 @@ def test_api_workflow():
     assert res.status_code == 200
     d_data = res.json()
     assert d_data["id"] == pred_id
-    assert d_data["predicted_emotion"] == "calm"
+    assert d_data["predicted_emotion"] == p_data["predicted_emotion"]
     print(" History detail OK!")
 
     print("\n--- 6. Testing GET /api/report/{id} ---")
@@ -79,7 +81,7 @@ def test_api_workflow():
     assert res.status_code == 200
     assert "attachment" in res.headers.get("content-disposition", "")
     assert "SPEECHSENSE" in res.text
-    assert "CALM" in res.text
+    assert p_data["predicted_emotion"].upper() in res.text
     print(" Report generation OK!")
 
     print("\n--- 7. Testing GET /audio/{id} ---")

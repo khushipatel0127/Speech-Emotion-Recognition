@@ -74,8 +74,13 @@ def _load_wavlm_models(deployment: dict[str, object]) -> dict[str, object]:
     if device_request == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA deployment was requested but CUDA is unavailable")
     device = "cuda" if device_request == "cuda" else "cpu"
-    processor = AutoFeatureExtractor.from_pretrained(backbone_name)
-    backbone = WavLMModel.from_pretrained(backbone_name).to(device)
+    local_files_only = bool(config.get("local_files_only", True))
+    processor = AutoFeatureExtractor.from_pretrained(
+        backbone_name, local_files_only=local_files_only
+    )
+    backbone = WavLMModel.from_pretrained(
+        backbone_name, local_files_only=local_files_only
+    ).to(device)
     backbone.eval()
     with np.load(model_path, allow_pickle=False) as artifact:
         classifier = {name: artifact[name] for name in artifact.files}
@@ -122,6 +127,7 @@ def _load_wavlm_models(deployment: dict[str, object]) -> dict[str, object]:
             "sample_rate": 16_000,
             "pooling": str(config.get("pooling", "mean")),
             "max_duration_seconds": float(config.get("max_duration_seconds", 20.0)),
+            "local_files_only": local_files_only,
         },
         "deployment": deployment,
     }

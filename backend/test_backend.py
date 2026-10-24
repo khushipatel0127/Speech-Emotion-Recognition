@@ -20,7 +20,7 @@ from database import (
     get_prediction_by_id,
     delete_all_predictions,
 )
-from predictor import predict_from_path, get_models
+from predictor import get_model_info, predict_from_path
 
 def test_database():
     print("--- Testing SQLite Database ---")
@@ -68,7 +68,7 @@ def test_database():
 
     print(" Database tests PASSED!")
 
-def test_prediction_accuracy():
+def test_prediction_contract():
     print("\n--- Testing Model Prediction on Real RAVDESS Audio ---")
     test_wav = Path(__file__).resolve().parents[1] / "dataset" / "Actor_01" / "03-01-01-01-01-01-01.wav"
     assert test_wav.exists(), f"Sample audio not found at {test_wav}"
@@ -81,15 +81,17 @@ def test_prediction_accuracy():
     for em, score in result["emotion_scores"].items():
         print(f"  {em:<12}: {score * 100:.2f}%")
 
-    # From 14_predict_audio.py:
-    # calm: 38.20%, neutral: 29.85%, sad: 20.55%
-    expected_top = "calm"
-    assert result["predicted_emotion"] == expected_top, f"Expected {expected_top}, got {result['predicted_emotion']}"
-    assert abs(result["emotion_scores"]["calm"] - 0.3820) < 0.005, f"Score mismatch: {result['emotion_scores']['calm']}"
-    assert abs(result["emotion_scores"]["neutral"] - 0.2985) < 0.005, f"Score mismatch: {result['emotion_scores']['neutral']}"
-    print(" Model prediction matches 14_predict_audio.py EXACTLY!")
+    model_info = get_model_info()
+    expected_classes = set(model_info["classes"])
+    assert set(result["emotion_scores"]) == expected_classes
+    assert result["predicted_emotion"] in expected_classes
+    assert result["model_version"] == model_info["model_version"]
+    assert abs(sum(result["emotion_scores"].values()) - 1.0) < 1e-6
+    assert all(0.0 <= value <= 1.0 for value in result["emotion_scores"].values())
+    assert isinstance(result["is_uncertain"], bool)
+    print(f" {model_info['model_version']} prediction contract PASSED!")
 
 if __name__ == "__main__":
     test_database()
-    test_prediction_accuracy()
+    test_prediction_contract()
     print("\n ALL BACKEND CORE TESTS PASSED SUCCESSFULLY!")
