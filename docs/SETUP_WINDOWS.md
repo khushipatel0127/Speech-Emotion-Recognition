@@ -29,9 +29,22 @@ locked scientific environment:
 .\.venv\Scripts\python.exe -m pip install -r experiments\phase2\requirements.txt
 ```
 
-The WavLM packages are intentionally separate in
-`experiments/phase2/requirements-wavlm.txt` because they are large and the
-recommended execution target is a free Colab GPU runtime.
+The WavLM packages are intentionally separate because they are large. The
+validated classifier can run on CPU, while embedding extraction and training
+remain better suited to a free Colab GPU.
+
+To install the Phase 2 inference runtime:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements-wavlm.txt
+```
+
+The first Phase 2 startup downloads `microsoft/wavlm-large` (about 1.26 GB) to
+the Hugging Face cache. Set `active_model` in `models/deployment.json` to
+`phase2_wavlm` only after the dependencies and backbone are available. Set it
+back to `historical` for instant rollback. The fitted classifier itself is the
+portable `portable_classifier.npz` artifact, so it does not depend on the exact
+scikit-learn version used by Colab.
 
 Verify model and audio imports:
 
@@ -92,7 +105,9 @@ Validate the dataset with:
   Restore Python 3.11 at the path in `.venv/pyvenv.cfg` or recreate the venv.
 - **FFmpeg unavailable:** reinstall backend requirements so `imageio-ffmpeg` can
   provide its bundled executable.
-- **Model file missing:** retain `models/final_model/` for the current app. Phase
-  2 candidates are separate and are not automatic replacements.
+- **Model file missing:** retain `models/final_model/` for rollback. Confirm that
+  the Phase 2 paths in `models/deployment.json` exist before switching.
+- **WavLM import/download error:** install `backend/requirements-wavlm.txt` and
+  make sure the first startup has Internet access and at least 2 GB free.
 - **Microphone unavailable:** grant microphone permission to the browser and use
   `localhost` or another secure browser context.

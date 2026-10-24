@@ -5,7 +5,9 @@
 Phase 2 uses six shared emotions and 115 dataset-prefixed speakers. The split is
 frozen with seed 42. Model selection uses five-fold stratified grouped
 cross-validation on the 80 training speakers followed by evaluation on 17
-validation speakers. The 18 final-test speakers remain untouched.
+validation speakers. The 18 final-test speakers remained untouched until
+WavLM-Large configuration selection was complete. They were evaluated once on
+24 October 2026.
 
 The manifest audit found 8,498 recordings. Seven recordings are excluded from
 modeling after exact decoded-PCM hashing: one redundant same-label repeat and all
@@ -86,16 +88,40 @@ This is a measured robustness/normal-performance tradeoff. The augmented model
 is retained as an experiment, but it is not the primary validation winner and
 has not been deployed.
 
-## WavLM status
+## Frozen WavLM results
 
-Frozen `microsoft/wavlm-base-plus` extraction and grouped classifier evaluation
-are implemented. Local extraction is intentionally not started because PyTorch,
-Transformers, model weights, and hours of CPU inference are inappropriate for
-the target 8 GB, non-CUDA laptop. The supplied Colab notebook uses small batches,
-64-recording resumable shards, and free GPU execution.
+The free Colab T4 workflow extracted embeddings for all 8,491 eligible files in
+resumable 64-recording shards. Mean pooling outperformed mean-plus-standard-
+deviation pooling. WavLM-Large substantially outperformed WavLM Base+ and the
+84-feature baseline.
 
-No WavLM score or final-test score is reported yet. The 70% accuracy and macro-F1
-values remain aspirations rather than achieved results.
+| Representation / classifier | Grouped-CV macro F1 | Validation accuracy | Validation macro F1 |
+|---|---:|---:|---:|
+| Handcrafted / calibrated RBF SVM | 47.25% | 48.51% | 47.45% |
+| WavLM Base+ mean / Logistic Regression C=0.1 | 68.96% | 67.45% | 67.44% |
+| WavLM-Large mean / Logistic Regression C=0.01 | **73.92%** | **73.33%** | **73.39%** |
+
+After selection, the WavLM-Large classifier was refit on the combined train and
+validation speakers. Its single evaluation on 1,318 recordings from 18 final-
+test speakers produced 77.54% accuracy, 77.78% macro F1, and 77.57% weighted F1.
+
+| Test subset | Accuracy | Macro F1 |
+|---|---:|---:|
+| CREMA-D | 76.71% | 76.89% |
+| RAVDESS | 82.95% | 82.33% |
+
+| Emotion | Test recall |
+|---|---:|
+| Angry | 87.22% |
+| Disgust | 72.25% |
+| Fearful | 73.13% |
+| Happy | 75.77% |
+| Neutral | 88.52% |
+| Sad | 70.48% |
+
+The classifier artifact is only 76 KB, but inference also requires the roughly
+1.26 GB WavLM-Large backbone. The scores are honest public acted-speech results;
+they do not support a 90% claim or establish natural-speech accuracy.
 
 ## Real-world evaluation
 

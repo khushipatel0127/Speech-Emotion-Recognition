@@ -20,7 +20,7 @@ from database import (
     delete_prediction,
     delete_all_predictions,
 )
-from predictor import get_models, predict_from_path
+from predictor import get_model_info, get_models, predict_from_path
 from audio_converter import convert_to_mono_wav, get_ffmpeg_path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -69,10 +69,11 @@ def startup_event():
 @app.get("/api/health")
 def health_check():
     try:
-        models = get_models()
-        models_loaded = models is not None and "svm" in models and "hgb" in models
+        model_info = get_model_info()
+        models_loaded = True
     except Exception:
         models_loaded = False
+        model_info = None
 
     try:
         ff_path = get_ffmpeg_path()
@@ -84,6 +85,7 @@ def health_check():
     return {
         "status": "ok",
         "models_loaded": models_loaded,
+        "model": model_info,
         "ffmpeg_available": ffmpeg_ok,
         "ffmpeg_path": ff_path,
         "supported_formats": sorted(list(SUPPORTED_EXTENSIONS)),
@@ -310,23 +312,35 @@ def download_report(prediction_id: str):
         except Exception:
             probs = {}
 
+    model_version = record.get("model_version") or "historical-ravdess-8class-v1"
+    is_phase2 = str(model_version).startswith("phase2-wavlm")
+    method_description = (
+        "Frozen WavLM-Large representations with Logistic Regression"
+        if is_phase2
+        else "SVM + HistGradientBoosting Soft Voting"
+    )
+    data_description = (
+        "RAVDESS and CREMA-D with speaker-independent evaluation"
+        if is_phase2
+        else "RAVDESS using MFCC, RMS, and ZCR acoustic features"
+    )
     report_lines = [
         "============================================================",
         "             SPEECHSENSE — ANALYSIS REPORT                  ",
-        "          Speech Emotion Recognition Ensemble               ",
+        "               Speech Emotion Recognition                  ",
         "============================================================",
         f"Prediction ID    : {record['id']}",
         f"Filename         : {record['filename']}",
         f"Analysis Date    : {record['created_at']}",
         f"Audio Duration   : {record['duration_seconds']} seconds",
         f"Audio File Size  : {record['file_size_bytes']} bytes",
-        f"Model Version    : {record.get('model_version') or 'historical-ravdess-8class-v1'}",
+        f"Model Version    : {model_version}",
         f"Processing Time  : {record.get('processing_time_ms') or 'Unavailable'} ms",
         f"Low-Certainty    : {'Yes' if record.get('is_uncertain') else 'No'}",
         "------------------------------------------------------------",
         f"PREDICTED EMOTION: {record['predicted_emotion'].upper()}",
         "------------------------------------------------------------",
-        "PROBABILITY BREAKDOWN (SVM + HistGradientBoosting Soft Voting):",
+        f"MODEL SCORE BREAKDOWN ({method_description}):",
     ]
 
     for em, prob in sorted(probs.items(), key=lambda x: x[1], reverse=True):
@@ -335,8 +349,9 @@ def download_report(prediction_id: str):
     report_lines.extend([
         "------------------------------------------------------------",
         "NOTE: Predictions are statistical estimates derived from",
-        "the RAVDESS dataset using MFCC, RMS, and ZCR acoustic",
-        "features. Results should not be used as clinical or legal proof",
+        f"{data_description}.",
+        "Scores are model estimates and are not guaranteed confidence.",
+        "Results should not be used as clinical or legal proof",
         "of emotional state.",
         "============================================================",
     ])

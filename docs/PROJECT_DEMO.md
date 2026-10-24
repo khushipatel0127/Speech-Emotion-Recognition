@@ -23,12 +23,11 @@
 6. Present Phase 2 methodology: six common labels, 115 speakers, exact-duplicate
    detection, speaker-independent splitting, grouped cross-validation, a sealed
    final test set, separate dataset results, and training-only augmentation.
-7. Present the measured limitation honestly: the best handcrafted validation
-   macro F1 is 47.45%, cross-dataset transfer is weak, and gain sensitivity is
-   substantial. The augmented model improves 3×-gain macro F1 from 31.80% to
-   46.05% but slightly lowers normal validation performance, so explain why it
-   was retained as an experiment rather than prematurely deployed.
-8. Show the resumable WavLM Colab workflow as the next evidence-based experiment.
+7. Compare the 47.45% handcrafted validation macro F1 with WavLM-Large's 73.39%.
+8. Present the one-time speaker-independent final test: 77.54% accuracy and
+   77.78% macro F1 across 1,318 recordings from 18 speakers. State clearly that
+   the result is below 90% and does not measure natural conversation.
+9. Show the resumable Colab shards, saved classifier, and historical rollback.
 
 The current natural-recording pilot contains three intentionally Happy phone
 recordings. The historical deployed model predicted Angry for all three. Present
@@ -45,9 +44,10 @@ Every speaker belongs to exactly one partition. Feature preprocessing and SVM
 calibration are fitted only within training groups. Exact PCM duplicates are
 identified, and none crosses a partition.
 
-**Why is accuracy below 70%?**  
-Speaker-independent evaluation is harder and more honest than random recording
-splits. The cross-dataset experiment directly demonstrates domain shift.
+**Did the project reach 90% accuracy?**
+No. The honest speaker-independent final-test accuracy is 77.54%. A random
+recording split could produce an inflated number through speaker leakage, so it
+was deliberately avoided.
 
 **Are the displayed probabilities true confidence?**  
 They are calibrated model estimates. They are useful for ranking classes but do
@@ -62,7 +62,6 @@ expensive extraction step is prepared for a free Colab GPU.
 
 - Do not call the application a lie detector, diagnostic tool, or psychological
   assessment.
-- Do not report the 70% target as achieved.
+- Do not report 90% accuracy. The measured final-test accuracy is 77.54%.
 - Do not describe public acted-speech performance as natural-speech accuracy.
-- Do not describe the reserved final test as evaluated until finalization has
-  actually occurred.
+- Do not tune further using the final-test results.

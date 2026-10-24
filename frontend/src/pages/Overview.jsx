@@ -22,7 +22,7 @@ export default function Overview() {
   const navigate = useNavigate()
   const [recentAnalyses, setRecentAnalyses] = useState([])
   const [loading, setLoading] = useState(true)
-  const [backendHealth, setBackendHealth] = useState({ ok: true, modelsLoaded: true })
+  const [backendHealth, setBackendHealth] = useState({ ok: true, modelsLoaded: true, model: null })
   const [stats, setStats] = useState({
     total: 0,
     recent_count: 0,
@@ -56,6 +56,7 @@ export default function Overview() {
         setBackendHealth({
           ok: healthData.status === 'ok',
           modelsLoaded: !!healthData.models_loaded,
+          model: healthData.model || null,
         })
         setRecentAnalyses(historyData.items || [])
         setStats(statsData)
@@ -418,15 +419,19 @@ export default function Overview() {
             icon: Layers,
             color: '#7C3AED',
             bg: '#F5F3FF',
-            title: 'Dual-Model Ensemble',
-            desc: '50/50 soft voting ensemble combining Calibrated Support Vector Machine and HistGradientBoosting.',
+            title: backendHealth.model?.kind === 'phase2_wavlm' ? 'WavLM-Large Model' : 'Dual-Model Ensemble',
+            desc: backendHealth.model?.kind === 'phase2_wavlm'
+              ? 'Frozen pretrained speech representations with a validated six-emotion Logistic Regression classifier.'
+              : '50/50 soft voting ensemble combining Calibrated Support Vector Machine and HistGradientBoosting.',
           },
           {
             icon: BarChart2,
             color: '#059669',
             bg: '#ECFDF5',
-            title: '84 Acoustic Features',
-            desc: 'Extracts 40 MFCC means, 40 MFCC standard deviations, RMS energy, and Zero-Crossing Rates at 16 kHz.',
+            title: backendHealth.model?.kind === 'phase2_wavlm' ? '1,024-D Speech Embeddings' : '84 Acoustic Features',
+            desc: backendHealth.model?.kind === 'phase2_wavlm'
+              ? 'Uses mean-pooled WavLM-Large embeddings from 16 kHz mono speech with speaker-independent evaluation.'
+              : 'Extracts 40 MFCC means, 40 MFCC standard deviations, RMS energy, and Zero-Crossing Rates at 16 kHz.',
           },
           {
             icon: Database,

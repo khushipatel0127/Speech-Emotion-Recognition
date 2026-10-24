@@ -907,7 +907,7 @@ export default function Analyze() {
                   Emotion Probability Scores
                 </h3>
                 <span style={{ fontSize: '12px', color: '#64748B' }}>
-                  8 Emotions (Soft-Voting)
+                  {sortedProbabilities.length} Emotions ({result?.model_version?.startsWith('phase2-wavlm') ? 'WavLM' : 'Soft-Voting'})
                 </span>
               </div>
 

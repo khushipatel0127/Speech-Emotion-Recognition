@@ -1,0 +1,147 @@
+{
+  "generated_at_utc": "2026-10-24T10:24:38.420352+00:00",
+  "embedding_model": "microsoft/wavlm-large",
+  "embedding_pooling": "mean",
+  "classifier": "logistic_regression",
+  "logistic_c": 0.01,
+  "classes": [
+    "angry",
+    "disgust",
+    "fearful",
+    "happy",
+    "neutral",
+    "sad"
+  ],
+  "development_fit_splits": [
+    "train",
+    "validation"
+  ],
+  "test_evaluation": {
+    "accuracy": 0.7754172989377845,
+    "macro_f1": 0.7777907685053295,
+    "weighted_f1": 0.775661953926925,
+    "macro_precision": 0.7782720868371875,
+    "macro_recall": 0.7789653595243253,
+    "per_dataset": {
+      "CREMA-D": {
+        "accuracy": 0.7670753064798599,
+        "macro_f1": 0.7689000034838133,
+        "weighted_f1": 0.7669150350978349,
+        "macro_precision": 0.7695955615111507,
+        "macro_recall": 0.7702134193152158
+      },
+      "RAVDESS": {
+        "accuracy": 0.8295454545454546,
+        "macro_f1": 0.8232743304565208,
+        "weighted_f1": 0.8299356332252953,
+        "macro_precision": 0.8266327686713083,
+        "macro_recall": 0.8229166666666666
+      }
+    },
+    "classification_report": {
+      "angry": {
+        "precision": 0.8878923766816144,
+        "recall": 0.8722466960352423,
+        "f1-score": 0.88,
+        "support": 227.0
+      },
+      "disgust": {
+        "precision": 0.7557603686635944,
+        "recall": 0.7224669603524229,
+        "f1-score": 0.7387387387387387,
+        "support": 227.0
+      },
+      "fearful": {
+        "precision": 0.7545454545454545,
+        "recall": 0.7312775330396476,
+        "f1-score": 0.7427293064876958,
+        "support": 227.0
+      },
+      "happy": {
+        "precision": 0.819047619047619,
+        "recall": 0.7577092511013216,
+        "f1-score": 0.7871853546910755,
+        "support": 227.0
+      },
+      "neutral": {
+        "precision": 0.801980198019802,
+        "recall": 0.8852459016393442,
+        "f1-score": 0.8415584415584415,
+        "support": 183.0
+      },
+      "sad": {
+        "precision": 0.6504065040650406,
+        "recall": 0.7048458149779736,
+        "f1-score": 0.6765327695560254,
+        "support": 227.0
+      },
+      "accuracy": 0.7754172989377845,
+      "macro avg": {
+        "precision": 0.7782720868371875,
+        "recall": 0.7789653595243253,
+        "f1-score": 0.7777907685053295,
+        "support": 1318.0
+      },
+      "weighted avg": {
+        "precision": 0.7774806172681169,
+        "recall": 0.7754172989377845,
+        "f1-score": 0.775661953926925,
+        "support": 1318.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        198,
+        16,
+        1,
+        8,
+        3,
+        1
+      ],
+      [
+        7,
+        164,
+        15,
+        11,
+        7,
+        23
+      ],
+      [
+        5,
+        11,
+        166,
+        6,
+        3,
+        36
+      ],
+      [
+        8,
+        6,
+        16,
+        172,
+        12,
+        13
+      ],
+      [
+        2,
+        0,
+        1,
+        5,
+        162,
+        13
+      ],
+      [
+        3,
+        20,
+        21,
+        8,
+        15,
+        160
+      ]
+    ],
+    "fit_seconds": 16.054962758999864,
+    "inference_ms_per_recording": 0.03871132018222813,
+    "recordings": 1318,
+    "speakers": 18
+  }
+}

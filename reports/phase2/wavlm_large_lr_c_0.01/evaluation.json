@@ -1,0 +1,334 @@
+{
+  "generated_at_utc": "2026-10-24T10:16:10.547245+00:00",
+  "status": "final_test_evaluated",
+  "embedding_model": "microsoft/wavlm-large",
+  "embedding_size": 1024,
+  "classes": [
+    "angry",
+    "disgust",
+    "fearful",
+    "happy",
+    "neutral",
+    "sad"
+  ],
+  "selected_validation_model": "logistic_regression",
+  "results": {
+    "logistic_regression": {
+      "cross_validation": {
+        "accuracy": 0.7375252865812543,
+        "macro_f1": 0.739228736277723,
+        "weighted_f1": 0.7367131169417479,
+        "macro_precision": 0.7389518501861964,
+        "macro_recall": 0.7416443982050892,
+        "folds": [
+          {
+            "fold": 1,
+            "accuracy": 0.7583892617449665,
+            "macro_f1": 0.7610976603909161,
+            "weighted_f1": 0.7580104454460022,
+            "macro_precision": 0.7637232361341203,
+            "macro_recall": 0.7634487123314346
+          },
+          {
+            "fold": 2,
+            "accuracy": 0.7328881469115192,
+            "macro_f1": 0.7341487355251436,
+            "weighted_f1": 0.7319861978431169,
+            "macro_precision": 0.7363735059260987,
+            "macro_recall": 0.7356102635228848
+          },
+          {
+            "fold": 3,
+            "accuracy": 0.7558528428093646,
+            "macro_f1": 0.7543153755756977,
+            "weighted_f1": 0.7517845697915171,
+            "macro_precision": 0.7586311066065838,
+            "macro_recall": 0.7613054362166368
+          },
+          {
+            "fold": 4,
+            "accuracy": 0.7370689655172413,
+            "macro_f1": 0.7384480190494171,
+            "weighted_f1": 0.7356338473942196,
+            "macro_precision": 0.7427203928846217,
+            "macro_recall": 0.7414583333333334
+          },
+          {
+            "fold": 5,
+            "accuracy": 0.7032040472175379,
+            "macro_f1": 0.7052310416752384,
+            "weighted_f1": 0.7032173914013903,
+            "macro_precision": 0.7081662756288268,
+            "macro_recall": 0.7062827513960448
+          }
+        ],
+        "elapsed_seconds": 52.24417972499987
+      },
+      "validation": {
+        "accuracy": 0.7332796132151491,
+        "macro_f1": 0.7338580083523322,
+        "weighted_f1": 0.7319749567528545,
+        "macro_precision": 0.7329207889528542,
+        "macro_recall": 0.7375116139257801,
+        "per_dataset": {
+          "CREMA-D": {
+            "accuracy": 0.7220657276995305,
+            "macro_f1": 0.7198781854492733,
+            "weighted_f1": 0.718109947215382,
+            "macro_precision": 0.7193417451927279,
+            "macro_recall": 0.726066406711568
+          },
+          "RAVDESS": {
+            "accuracy": 0.8011363636363636,
+            "macro_f1": 0.8020058282101493,
+            "weighted_f1": 0.8049853790264566,
+            "macro_precision": 0.8602318995321022,
+            "macro_recall": 0.7864583333333334
+          }
+        },
+        "classification_report": {
+          "angry": {
+            "precision": 0.8136363636363636,
+            "recall": 0.8364485981308412,
+            "f1-score": 0.8248847926267281,
+            "support": 214.0
+          },
+          "disgust": {
+            "precision": 0.7239583333333334,
+            "recall": 0.6495327102803738,
+            "f1-score": 0.6847290640394089,
+            "support": 214.0
+          },
+          "fearful": {
+            "precision": 0.7259615384615384,
+            "recall": 0.705607476635514,
+            "f1-score": 0.7156398104265402,
+            "support": 214.0
+          },
+          "happy": {
+            "precision": 0.7707317073170732,
+            "recall": 0.7383177570093458,
+            "f1-score": 0.7541766109785203,
+            "support": 214.0
+          },
+          "neutral": {
+            "precision": 0.7277227722772277,
+            "recall": 0.8596491228070176,
+            "f1-score": 0.7882037533512064,
+            "support": 171.0
+          },
+          "sad": {
+            "precision": 0.6355140186915887,
+            "recall": 0.6355140186915887,
+            "f1-score": 0.6355140186915887,
+            "support": 214.0
+          },
+          "accuracy": 0.7332796132151491,
+          "macro avg": {
+            "precision": 0.7329207889528542,
+            "recall": 0.7375116139257801,
+            "f1-score": 0.7338580083523322,
+            "support": 1241.0
+          },
+          "weighted avg": {
+            "precision": 0.7331008975080935,
+            "recall": 0.7332796132151491,
+            "f1-score": 0.7319749567528545,
+            "support": 1241.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            179,
+            12,
+            5,
+            9,
+            5,
+            4
+          ],
+          [
+            19,
+            139,
+            18,
+            11,
+            6,
+            21
+          ],
+          [
+            6,
+            8,
+            151,
+            13,
+            4,
+            32
+          ],
+          [
+            14,
+            6,
+            15,
+            158,
+            13,
+            8
+          ],
+          [
+            0,
+            2,
+            4,
+            5,
+            147,
+            13
+          ],
+          [
+            2,
+            25,
+            15,
+            9,
+            27,
+            136
+          ]
+        ],
+        "fit_seconds": 12.120927333999589,
+        "inference_ms_per_recording": 0.06312745044316911
+      },
+      "model_path": "models/phase2/wavlm_large_lr_c_0.01/logistic_regression.joblib",
+      "model_size_bytes": 76105
+    }
+  },
+  "test_evaluation": {
+    "accuracy": 0.7754172989377845,
+    "macro_f1": 0.7777907685053295,
+    "weighted_f1": 0.775661953926925,
+    "macro_precision": 0.7782720868371875,
+    "macro_recall": 0.7789653595243253,
+    "per_dataset": {
+      "CREMA-D": {
+        "accuracy": 0.7670753064798599,
+        "macro_f1": 0.7689000034838133,
+        "weighted_f1": 0.7669150350978349,
+        "macro_precision": 0.7695955615111507,
+        "macro_recall": 0.7702134193152158
+      },
+      "RAVDESS": {
+        "accuracy": 0.8295454545454546,
+        "macro_f1": 0.8232743304565208,
+        "weighted_f1": 0.8299356332252953,
+        "macro_precision": 0.8266327686713083,
+        "macro_recall": 0.8229166666666666
+      }
+    },
+    "classification_report": {
+      "angry": {
+        "precision": 0.8878923766816144,
+        "recall": 0.8722466960352423,
+        "f1-score": 0.88,
+        "support": 227.0
+      },
+      "disgust": {
+        "precision": 0.7557603686635944,
+        "recall": 0.7224669603524229,
+        "f1-score": 0.7387387387387387,
+        "support": 227.0
+      },
+      "fearful": {
+        "precision": 0.7545454545454545,
+        "recall": 0.7312775330396476,
+        "f1-score": 0.7427293064876958,
+        "support": 227.0
+      },
+      "happy": {
+        "precision": 0.819047619047619,
+        "recall": 0.7577092511013216,
+        "f1-score": 0.7871853546910755,
+        "support": 227.0
+      },
+      "neutral": {
+        "precision": 0.801980198019802,
+        "recall": 0.8852459016393442,
+        "f1-score": 0.8415584415584415,
+        "support": 183.0
+      },
+      "sad": {
+        "precision": 0.6504065040650406,
+        "recall": 0.7048458149779736,
+        "f1-score": 0.6765327695560254,
+        "support": 227.0
+      },
+      "accuracy": 0.7754172989377845,
+      "macro avg": {
+        "precision": 0.7782720868371875,
+        "recall": 0.7789653595243253,
+        "f1-score": 0.7777907685053295,
+        "support": 1318.0
+      },
+      "weighted avg": {
+        "precision": 0.7774806172681169,
+        "recall": 0.7754172989377845,
+        "f1-score": 0.775661953926925,
+        "support": 1318.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        198,
+        16,
+        1,
+        8,
+        3,
+        1
+      ],
+      [
+        7,
+        164,
+        15,
+        11,
+        7,
+        23
+      ],
+      [
+        5,
+        11,
+        166,
+        6,
+        3,
+        36
+      ],
+      [
+        8,
+        6,
+        16,
+        172,
+        12,
+        13
+      ],
+      [
+        2,
+        0,
+        1,
+        5,
+        162,
+        13
+      ],
+      [
+        3,
+        20,
+        21,
+        8,
+        15,
+        160
+      ]
+    ],
+    "fit_seconds": 16.054962758999864,
+    "inference_ms_per_recording": 0.03871132018222813,
+    "recordings": 1318,
+    "speakers": 18
+  },
+  "embedding_pooling": "mean",
+  "logistic_c": 0.01,
+  "finalized_at_utc": "2026-10-24T10:24:38.420352+00:00",
+  "development_fit_splits": [
+    "train",
+    "validation"
+  ],
+  "final_model_path": "models/phase2/wavlm_large_lr_c_0.01/final_model.joblib",
+  "final_model_size_bytes": 76100
+}

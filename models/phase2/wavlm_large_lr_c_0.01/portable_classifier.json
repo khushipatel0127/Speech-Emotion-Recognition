@@ -1,0 +1,7 @@
+{
+  "format": "speechsense_numpy_logistic_v1",
+  "source_model": "final_model.joblib",
+  "feature_count": 1024,
+  "class_count": 6,
+  "verification_max_probability_error": 3.0539431677967244e-07
+}

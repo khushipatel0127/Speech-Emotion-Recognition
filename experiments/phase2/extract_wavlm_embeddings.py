@@ -81,6 +81,12 @@ def main() -> int:
     parser.add_argument("--shard-size", type=int, default=64)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument(
+        "--pooling",
+        choices=("mean", "mean_std"),
+        default="mean",
+        help="Temporal pooling applied to the masked WavLM hidden states.",
+    )
     args = parser.parse_args()
     if args.shard_size < 1:
         parser.error("--shard-size must be positive")
@@ -108,6 +114,9 @@ def main() -> int:
             raise RuntimeError("The manifest changed after WavLM extraction started")
         if checkpoint.get("shard_size") != args.shard_size:
             raise RuntimeError("Existing shards use a different --shard-size")
+        existing_pooling = checkpoint.get("pooling", "mean")
+        if existing_pooling != args.pooling:
+            raise RuntimeError("Existing shards use a different --pooling strategy")
 
     print(f"Loading {args.model_name} on {device}...", flush=True)
     processor = AutoFeatureExtractor.from_pretrained(args.model_name)
@@ -160,7 +169,14 @@ def main() -> int:
                 ).unsqueeze(-1)
                 summed = (hidden * feature_mask).sum(dim=1)
                 counts = feature_mask.sum(dim=1).clamp(min=1)
-                batch_embeddings = summed / counts
+                means = summed / counts
+                if args.pooling == "mean_std":
+                    centered = (hidden - means.unsqueeze(1)) * feature_mask
+                    variances = centered.square().sum(dim=1) / counts
+                    standard_deviations = variances.clamp(min=1e-8).sqrt()
+                    batch_embeddings = torch.cat((means, standard_deviations), dim=1)
+                else:
+                    batch_embeddings = means
             embeddings.extend(
                 batch_embeddings.detach().cpu().numpy().astype(np.float32)
             )
@@ -184,6 +200,7 @@ def main() -> int:
             "embedding_size": embedding_size,
             "shard_size": args.shard_size,
             "batch_size": args.batch_size,
+            "pooling": args.pooling,
             "completed_shards": len(completed),
             "total_shards": shard_count,
             "complete": len(completed) == shard_count,
@@ -209,6 +226,7 @@ def main() -> int:
             "embedding_size": embedding_size,
             "shard_size": args.shard_size,
             "batch_size": args.batch_size,
+            "pooling": args.pooling,
             "completed_shards": len(completed),
             "total_shards": shard_count,
             "complete": True,

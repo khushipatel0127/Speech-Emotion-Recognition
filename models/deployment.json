@@ -1,0 +1,18 @@
+{
+  "active_model": "historical",
+  "historical": {
+    "model_version": "historical-ravdess-8class-v1",
+    "model_dir": "models/final_model"
+  },
+  "phase2_wavlm": {
+    "model_version": "phase2-wavlm-large-6class-v1",
+    "backbone": "microsoft/wavlm-large",
+    "classifier_path": "models/phase2/wavlm_large_lr_c_0.01/portable_classifier.npz",
+    "selection_path": "models/phase2/wavlm_large_lr_c_0.01/selection.json",
+    "classes": ["angry", "disgust", "fearful", "happy", "neutral", "sad"],
+    "pooling": "mean",
+    "sample_rate": 16000,
+    "max_duration_seconds": 20,
+    "device": "cpu"
+  }
+}

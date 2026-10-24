@@ -1,0 +1,21 @@
+{
+  "updated_at_utc": "2026-10-24T10:14:27.759054+00:00",
+  "model_name": "microsoft/wavlm-large",
+  "manifest_sha256": "4d4b34ad95280593ec3fad3716e25098c89c4495a7ad59390047545c54c28b5c",
+  "device": "cuda",
+  "recordings": 8491,
+  "embedding_size": 1024,
+  "shard_size": 64,
+  "batch_size": 2,
+  "pooling": "mean",
+  "completed_shards": 133,
+  "total_shards": 133,
+  "complete": true,
+  "elapsed_seconds_this_run": 376.2735715929998,
+  "versions": {
+    "python": "3.13.16",
+    "numpy": "2.1.3",
+    "torch": "2.11.0+cu130",
+    "transformers": "4.57.6"
+  }
+}

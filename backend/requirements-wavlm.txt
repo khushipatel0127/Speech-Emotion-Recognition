@@ -1,0 +1,5 @@
+# Optional runtime for the validated Phase 2 model.
+# Install only when deploying phase2_wavlm from models/deployment.json.
+-r requirements.txt
+torch>=2.4,<3
+transformers>=4.45,<5

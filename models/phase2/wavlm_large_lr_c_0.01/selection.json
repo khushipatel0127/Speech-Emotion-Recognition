@@ -1,0 +1,18 @@
+{
+  "embedding_model": "microsoft/wavlm-large",
+  "embedding_pooling": "mean",
+  "selected_validation_model": "logistic_regression",
+  "logistic_c": 0.01,
+  "model_path": "models/phase2/wavlm_large_lr_c_0.01/final_model.joblib",
+  "portable_model_path": "models/phase2/wavlm_large_lr_c_0.01/portable_classifier.npz",
+  "classes": [
+    "angry",
+    "disgust",
+    "fearful",
+    "happy",
+    "neutral",
+    "sad"
+  ],
+  "test_evaluated": true,
+  "deployed": false
+}

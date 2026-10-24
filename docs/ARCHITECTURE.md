@@ -20,15 +20,18 @@ from the backend model response and is stored with the corresponding prediction.
 
 ## Current deployment
 
-`backend/predictor.py` loads the historical artifacts from `models/final_model/`
-once per process. It extracts 84 values in a fixed order: 40 MFCC means, 40 MFCC
-standard deviations, RMS mean and standard deviation, and zero-crossing-rate mean
-and standard deviation. A calibrated SVM and HistGradientBoosting classifier are
-combined with equal-weight probability averaging.
+`models/deployment.json` selects a versioned backend path. The historical path
+loads the preserved eight-class artifacts from `models/final_model/` and keeps
+the 84-feature soft-voting ensemble available for immediate rollback.
 
-The historical classifier supports eight RAVDESS labels. It remains available as
-the rollback model until a stronger six-class candidate completes validation,
-final-test evaluation, and integration testing.
+The Phase 2 path loads WavLM-Large once, mean-pools its masked hidden states, and
+passes the 1,024-value embedding to the validated six-class Logistic Regression
+artifact. The classifier is stored as a small, version-independent NumPy
+artifact containing the fitted imputer, scaler, coefficients, intercepts, and
+class order. This avoids scikit-learn pickle compatibility problems between the
+Colab training environment and Windows. The backend verifies dimensions,
+finite values, label order, and probability order at startup. The frontend
+reads `/api/health` and displays the active model family.
 
 ## Phase 2 experiment architecture
 
@@ -39,7 +42,7 @@ flowchart TD
     M --> S[Speaker-independent frozen split]
     S --> T[Train: model selection folds]
     S --> V[Validation: candidate selection]
-    S --> X[Final test: sealed until finalization]
+    S --> X[Final test: used once after finalization]
     T --> HF[84 handcrafted features]
     T --> WE[Frozen WavLM embeddings]
     HF --> HC[CPU classifiers]
@@ -47,7 +50,7 @@ flowchart TD
     HC --> C[Validation comparison]
     EC --> C
     C --> X
-    X --> VM[Versioned final model]
+    X --> VM[WavLM-Large final model]
     VM --> API[FastAPI integration]
 ```
 
@@ -68,6 +71,7 @@ history removal and per-entry removal of both the row and stored WAV.
 ## Artifact safety
 
 Datasets, virtual environments, uploaded audio, databases, feature caches,
-embeddings, and binary model files are excluded from Git. Source, small reports,
-manifests, configuration, and evaluation summaries are tracked. The original
-eight-class artifacts are preserved under `models/final_model/`.
+embeddings, and large or pickle-based model files are excluded from Git. Source,
+small reports, manifests, configuration, evaluation summaries, and the 69 KB
+portable Phase 2 classifier are tracked. The original eight-class artifacts are
+preserved under `models/final_model/`.

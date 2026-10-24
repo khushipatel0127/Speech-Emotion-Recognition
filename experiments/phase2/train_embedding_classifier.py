@@ -43,13 +43,13 @@ OUTPUT_DIR = ROOT / "models" / "phase2" / "wavlm_classifiers"
 REPORT_DIR = ROOT / "reports" / "phase2" / "wavlm_classifiers"
 
 
-def load_embeddings() -> tuple[list[str], np.ndarray, dict[str, object]]:
-    checkpoint = json.loads((EMBEDDING_DIR / "checkpoint.json").read_text(encoding="utf-8"))
+def load_embeddings(embedding_dir: Path) -> tuple[list[str], np.ndarray, dict[str, object]]:
+    checkpoint = json.loads((embedding_dir / "checkpoint.json").read_text(encoding="utf-8"))
     if not checkpoint.get("complete"):
         raise RuntimeError("WavLM embedding extraction is incomplete")
     paths: list[str] = []
     matrices = []
-    for shard in sorted(EMBEDDING_DIR.glob("shard_*.npz")):
+    for shard in sorted(embedding_dir.glob("shard_*.npz")):
         data = np.load(shard, allow_pickle=False)
         paths.extend(str(value) for value in data["audio_paths"])
         matrices.append(data["embeddings"].astype(np.float32))
@@ -59,13 +59,18 @@ def load_embeddings() -> tuple[list[str], np.ndarray, dict[str, object]]:
     return paths, matrix, checkpoint
 
 
-def build_embedding_model(name: str, labels: np.ndarray, groups: np.ndarray):
+def build_embedding_model(
+    name: str,
+    labels: np.ndarray,
+    groups: np.ndarray,
+    logistic_c: float = 1.0,
+):
     if name == "logistic_regression":
         return make_pipeline(
             SimpleImputer(strategy="median"),
             StandardScaler(),
             LogisticRegression(
-                C=1.0,
+                C=logistic_c,
                 class_weight="balanced",
                 max_iter=2_000,
                 random_state=RANDOM_SEED,
@@ -98,13 +103,25 @@ def build_embedding_model(name: str, labels: np.ndarray, groups: np.ndarray):
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--include-rbf", action="store_true")
+    parser.add_argument("--embedding-dir", type=Path, default=EMBEDDING_DIR)
+    parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--report-dir", type=Path, default=REPORT_DIR)
+    parser.add_argument(
+        "--candidates",
+        nargs="+",
+        choices=("logistic_regression", "linear_svm", "rbf_svm"),
+        default=("logistic_regression", "linear_svm"),
+    )
+    parser.add_argument("--logistic-c", type=float, default=1.0)
     args = parser.parse_args()
+    if args.logistic_c <= 0:
+        parser.error("--logistic-c must be positive")
     frame = pd.read_csv(MANIFEST_PATH, dtype={"model_eligible": str})
     frame = frame[frame["model_eligible"].str.lower() == "true"].reset_index(drop=True)
     encoder = LabelEncoder()
     labels = encoder.fit_transform(frame["emotion"])
     groups = frame["speaker_id"].to_numpy()
-    paths, embedding_matrix, checkpoint = load_embeddings()
+    paths, embedding_matrix, checkpoint = load_embeddings(args.embedding_dir)
     index_by_path = {path: index for index, path in enumerate(paths)}
     indices = np.asarray([index_by_path[path] for path in frame["audio_path"]])
     matrix = embedding_matrix[indices]
@@ -113,13 +130,13 @@ def main() -> int:
     validation_mask = frame["data_split"].to_numpy() == "validation"
     validation_frame = frame.loc[validation_mask].reset_index(drop=True)
 
-    candidates = ["logistic_regression", "linear_svm"]
-    if args.include_rbf:
+    candidates = list(dict.fromkeys(args.candidates))
+    if args.include_rbf and "rbf_svm" not in candidates:
         candidates.append("rbf_svm")
     outer = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
     results = {}
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    args.report_dir.mkdir(parents=True, exist_ok=True)
 
     train_indices = np.flatnonzero(train_mask)
     for name in candidates:
@@ -130,7 +147,10 @@ def main() -> int:
             outer.split(matrix[train_mask], labels[train_mask], groups[train_mask]), start=1
         ):
             model = build_embedding_model(
-                name, labels[train_indices[fit_local]], groups[train_indices[fit_local]]
+                name,
+                labels[train_indices[fit_local]],
+                groups[train_indices[fit_local]],
+                logistic_c=args.logistic_c,
             )
             model.fit(matrix[train_indices[fit_local]], labels[train_indices[fit_local]])
             predictions = model.predict(matrix[train_indices[score_local]])
@@ -140,7 +160,12 @@ def main() -> int:
             )
         cv_seconds = time.perf_counter() - started
 
-        model = build_embedding_model(name, labels[train_mask], groups[train_mask])
+        model = build_embedding_model(
+            name,
+            labels[train_mask],
+            groups[train_mask],
+            logistic_c=args.logistic_c,
+        )
         fit_started = time.perf_counter()
         model.fit(matrix[train_mask], labels[train_mask])
         fit_seconds = time.perf_counter() - fit_started
@@ -150,7 +175,7 @@ def main() -> int:
         inference_seconds = time.perf_counter() - inference_started
         if not np.allclose(probabilities.sum(axis=1), 1.0, atol=1e-6):
             raise ValueError(f"Invalid probabilities from {name}")
-        model_path = OUTPUT_DIR / f"{name}.joblib"
+        model_path = args.output_dir / f"{name}.joblib"
         joblib.dump(model, model_path, compress=3)
         results[name] = {
             "cross_validation": {
@@ -205,10 +230,12 @@ def main() -> int:
         "results": results,
         "test_evaluation": None,
     }
-    (REPORT_DIR / "evaluation.json").write_text(
+    report["embedding_pooling"] = checkpoint.get("pooling", "mean")
+    report["logistic_c"] = args.logistic_c
+    (args.report_dir / "evaluation.json").write_text(
         json.dumps(report, indent=2), encoding="utf-8"
     )
-    (OUTPUT_DIR / "selection.json").write_text(
+    (args.output_dir / "selection.json").write_text(
         json.dumps(
             {
                 "embedding_model": checkpoint["model_name"],

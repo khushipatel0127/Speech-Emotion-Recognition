@@ -153,3 +153,8 @@ def predict_from_path(audio_path):
             else None
         ),
     }
+
+
+# The versioned implementation keeps the historical artifacts as a rollback
+# option and adds the validated six-class WavLM deployment path.
+from predictor_v2 import extract_features, get_model_info, get_models, predict_from_path  # noqa: E402,F401

@@ -5,10 +5,10 @@ acoustic patterns in speech. It accepts uploaded audio or browser microphone
 recordings, converts them to 16 kHz mono WAV with FFmpeg, returns model scores,
 and stores prediction history in SQLite.
 
-The application currently deploys the historical eight-class RAVDESS ensemble.
-A leakage-safe six-class Phase 2 pipeline is implemented and evaluated, but its
-handcrafted candidate is not deployed because validation and robustness results
-remain insufficient. Frozen WavLM evaluation is prepared for a free Colab GPU.
+The application keeps the historical eight-class RAVDESS ensemble as its active
+rollback model. A leakage-safe six-class WavLM-Large candidate is now trained,
+final-tested, packaged, and supported by the backend loader. Activating it
+requires the optional PyTorch/Transformers runtime and the backbone download.
 
 ## Supported application features
 
@@ -36,11 +36,33 @@ The resulting modeling manifest contains 8,491 recordings.
 |---|---:|---:|
 | Train | 5,932 | 80 |
 | Validation | 1,241 | 17 |
-| Reserved final test | 1,318 | 18 |
+| Final test (evaluated once after selection) | 1,318 | 18 |
 
 All recordings from a speaker remain in one split. Previously examined RAVDESS
-actors are prohibited from the new final test split. The reserved final test has
-not been evaluated during current model development.
+actors were prohibited from the final test split. The test speakers were used
+once, after the model family, pooling method, and regularization were frozen.
+
+## Selected Phase 2 model
+
+Frozen `microsoft/wavlm-large` mean-pooled embeddings with class-balanced
+Logistic Regression (`C=0.01`) were selected. The model reached 73.39%
+validation macro F1 and 73.92% grouped cross-validation macro F1. After
+selection, it was refit on train plus validation speakers and evaluated once on
+the 18 untouched test speakers. Its fitted preprocessing and linear classifier
+are exported as a portable NumPy artifact so local inference is independent of
+the scikit-learn version used in Colab:
+
+| Final-test metric | Result |
+|---|---:|
+| Accuracy | **77.54%** |
+| Macro F1 | **77.78%** |
+| Weighted F1 | **77.57%** |
+| CREMA-D macro F1 | 76.89% |
+| RAVDESS macro F1 | 82.33% |
+
+Happy recall is 75.77%; Angry recall is 87.22%. These results exceed the 70%
+aspirational target on the public speaker-independent holdout, but they do not
+establish 90% accuracy or natural-conversation accuracy.
 
 ## Measured handcrafted baseline results
 
@@ -51,11 +73,9 @@ not been evaluated during current model development.
 | HistGradientBoosting | **49.09%** | **48.66%** | 48.27% | 47.21% |
 | Extra Trees | 47.93% | 46.09% | 47.86% | 46.34% |
 
-The calibrated RBF SVM is the current validation winner by a narrow margin. It
-is still unsuitable for deployment: validation macro F1 falls to 31.80% at 3×
-gain, and cross-dataset macro F1 is only 24.74% for CREMA-D → RAVDESS and 18.07%
-for RAVDESS → CREMA-D. These measured failures are why Phase 2 has not replaced
-the historical website model.
+The calibrated RBF SVM is the strongest handcrafted baseline, but WavLM-Large
+improves validation macro F1 by 25.94 percentage points. The handcrafted model
+is retained for comparison and low-resource rollback experiments.
 
 A training-only volume experiment retained 46.05% macro F1 at 3× gain, compared
 with 31.80% for the unaugmented model, but reduced normal validation macro F1
@@ -112,10 +132,13 @@ Detailed setup and troubleshooting are in [SETUP_WINDOWS.md](docs/SETUP_WINDOWS.
   --output reports/phase2/handcrafted_baselines/volume_augmented_gain_robustness.json
 ```
 
-For WavLM, open
+To reproduce WavLM extraction and training, open
 [SpeechSense_WavLM_Colab.ipynb](experiments/phase2/SpeechSense_WavLM_Colab.ipynb)
 in Google Colab, select a free GPU runtime, configure the single project path,
-and run the cells. Embeddings are saved in resumable 64-recording shards.
+and run the cells. Embeddings are saved in resumable 64-recording shards. The
+one-time finalization script is
+`experiments/phase2/finalize_embedding_model.py` and refuses to reuse a report
+that already contains final-test results.
 
 Natural microphone or phone recordings can be evaluated without treating model
 output as ground truth. Copy
@@ -127,13 +150,15 @@ device details, and run `experiments/phase2/evaluate_real_world.py`.
 
 - Emotion labels describe acted or perceived vocal expression; they do not prove
   a person's internal emotional state.
-- The current website model was trained only on RAVDESS and generalizes poorly
-  to natural speech.
-- Phase 2 handcrafted models remain below the 70% aspirational target.
+- The historical rollback model was trained only on RAVDESS and generalizes
+  poorly to natural speech.
+- The Phase 2 public-dataset holdout exceeds 70%, but the small natural-recording
+  pilot is not sufficient to quantify real-world accuracy.
 - A preliminary one-speaker Happy benchmark produced 0/3 correct predictions
   from the deployed model. It documents a real failure but is too narrow to
   establish overall natural-speech accuracy.
-- WavLM validation and the one-time Phase 2 final-test evaluation remain pending.
+- WavLM-Large needs substantially more CPU time and memory than the historical
+  84-feature model. First startup also downloads the pretrained backbone.
 
 SpeechSense should be presented as an experimental machine-learning system, not
 as a clinical, legal, employment, or safety assessment tool.

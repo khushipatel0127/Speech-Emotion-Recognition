@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, Mic, History, AudioWaveform } from 'lucide-react'
 
@@ -9,6 +9,20 @@ const navItems = [
 ]
 
 export default function Sidebar() {
+  const [modelInfo, setModelInfo] = useState(null)
+
+  useEffect(() => {
+    let mounted = true
+    fetch('/api/health')
+      .then((response) => response.json())
+      .then((data) => {
+        if (mounted && data.models_loaded) setModelInfo(data.model)
+      })
+      .catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
+  const phase2Active = modelInfo?.kind === 'phase2_wavlm'
   return (
     <aside
       style={{
@@ -119,12 +133,12 @@ export default function Sidebar() {
             }}
           />
           <span style={{ fontSize: '12px', fontWeight: 600, color: '#E2E8F0' }}>
-            Ensemble Model Active
+            {phase2Active ? 'WavLM-Large Active' : 'Ensemble Model Active'}
           </span>
         </div>
         <p style={{ fontSize: '11px', color: '#94A3B8', lineHeight: 1.4 }}>
-          SVM + HistGradientBoosting<br />
-          84 Acoustic Features (16 kHz)
+          {phase2Active ? '6-emotion Phase 2 classifier' : 'SVM + HistGradientBoosting'}<br />
+          {phase2Active ? 'Speaker-independent evaluation' : '84 Acoustic Features (16 kHz)'}
         </p>
       </div>
     </aside>
