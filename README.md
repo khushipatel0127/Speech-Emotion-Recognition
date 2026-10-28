@@ -1,4 +1,4 @@
-# SpeechSense — Speech Emotion Recognition
+# SpeechSense -- Speech Emotion Recognition
 
 SpeechSense is a React and FastAPI application for analyzing emotion-related
 acoustic patterns in speech. It accepts uploaded audio or browser microphone
