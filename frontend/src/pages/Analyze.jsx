@@ -138,7 +138,8 @@ export default function Analyze() {
 
   const handleAudioLoadedMetadata = () => {
     if (audioRef.current) {
-      setAudioDuration(audioRef.current.duration)
+      const duration = audioRef.current.duration
+      setAudioDuration(Number.isFinite(duration) && duration > 0 ? duration : null)
     }
   }
 
@@ -267,6 +268,9 @@ export default function Analyze() {
       }
 
       setResult(data)
+      if (Number.isFinite(data.duration_seconds) && data.duration_seconds > 0) {
+        setAudioDuration(data.duration_seconds)
+      }
     } catch (err) {
       setError(err.message || 'An error occurred during prediction.')
     } finally {
@@ -632,7 +636,7 @@ export default function Analyze() {
                       </p>
                       <p style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
                         {formatFileSize(file.size)}
-                        {audioDuration !== null && ` · ${audioDuration.toFixed(1)}s duration`}
+                        {Number.isFinite(audioDuration) && ` · ${audioDuration.toFixed(1)}s duration`}
                         <span style={{ marginLeft: '6px', color: '#2563EB', fontWeight: 600 }}>
                           ({file.name.split('.').pop().toUpperCase()})
                         </span>

@@ -1,10 +1,10 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
-import Overview from './pages/Overview.jsx'
-import Analyze from './pages/Analyze.jsx'
-import History from './pages/History.jsx'
-import Detail from './pages/Detail.jsx'
+import Overview from './pages/OverviewResearch.jsx'
+import Analyze from './pages/AnalyzeResearch.jsx'
+import History from './pages/HistoryResearch.jsx'
+import Detail from './pages/DetailResearch.jsx'
 
 export default function App() {
   return (
